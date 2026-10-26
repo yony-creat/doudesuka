@@ -1,473 +1,703 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일본어 회화 연습 마스터</title>
-  <style>
-    :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif, system-ui; }
-    body { background: var(--bg); color: #1e293b; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { max-width: 550px; width: 100%; background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .screen { display: none; }
-    .screen.active { display: block; }
-    h1 { font-size: 1.4rem; color: var(--primary); text-align: center; margin-bottom: 12px; }
-    p.desc { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4; }
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .notice { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; line-height: 1.4; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; color: #64748b; }
-    .btn-home-small { background: #e2e8f0; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; color: #475569; }
-    .progress { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
-    .card { background: #f1f5f9; border-radius: 12px; padding: 18px; margin-bottom: 15px; text-align: center; }
-    .q-text { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #0f172a; }
-    .btn-audio { background: #e0e7ff; color: var(--primary); border: none; padding: 6px 12px; border-radius: 15px; font-weight: bold; cursor: pointer; }
-    .target-choice { display: flex; gap: 8px; margin-bottom: 15px; }
-    .choice-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
-    .choice-btn.active-b1 { border-color: #16a34a; background: #dcfce7; color: #15803d; }
-    .choice-btn.active-b2 { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
-    .voice-box { text-align: center; padding: 10px 0; }
-    .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: #ef4444; border: none; color: white; font-size: 1.6rem; cursor: pointer; margin-bottom: 8px; }
-    .mic-btn.listening { background: #dc2626; animation: pulse 1s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-    .res-box { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; min-height: 40px; margin-top: 8px; font-weight: bold; word-break: break-all; }
-    .puzzle-workspace { background: #fff; border: 2px dashed #cbd5e1; border-radius: 8px; min-height: 50px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .puzzle-pool { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
-    .chip { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
-    .chip.selected { opacity: 0.3; pointer-events: none; }
-    .ans-reveal { background: #e0e7ff; border-radius: 8px; padding: 10px; margin-top: 10px; display: none; font-weight: bold; color: #3730a3; text-align: center; }
-    .ans-reveal.show { display: block; }
-    .feedback { text-align: center; font-weight: bold; margin-top: 10px; padding: 10px; border-radius: 8px; display: none; }
-    .feedback.correct { background: #dcfce7; color: #15803d; display: block; }
-    .feedback.wrong { background: #fee2e2; color: #b91c1c; display: block; }
-    .report { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .report-title { font-weight: bold; color: var(--primary); margin-bottom: 4px; }
-    .score-badge { font-size: 1.5rem; font-weight: bold; color: #4f46e5; text-align: center; margin: 10px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의견 묻고 답하기</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Gaegu, Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FFF5F7;
+        }
+        .font-jp {
+            font-family: 'Gaegu', cursive, sans-serif;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        }
+        .mic-recording {
+            animation: pulse-ring 1.5s infinite;
+        }
+    </style>
 </head>
-<body>
-<div class="container">
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-6 text-gray-800">
 
-  <!-- 1. 시작 화면 -->
-  <div class="screen active" id="sc-start">
-    <h1>일본어 회화 연습을 시작해볼까요?</h1>
-    <p class="desc">일본어 질문(A)을 듣고 알맞은 대답을 완성하는 회화 연습입니다.<br>정답이 먼저 보이지 않으니 직접 기억해서 말하거나 맞춰보세요!</p>
-    <div class="notice">💡 <strong>마이크 안내:</strong> [음성 말하기] 모드 이용 시 브라우저 상단의 <strong>마이크 허용</strong>을 눌러주세요. 소음이 있거나 설정이 어려우면 <strong>[단어 조합하기]</strong> 모드를 사용해 보세요.</div>
-    <button class="btn btn-primary" onclick="initApp('voice')">🎙️ 음성으로 말하며 시작하기</button>
-    <button class="btn btn-secondary" onclick="initApp('puzzle')">⌨️ 단어 조합하여 시작하기</button>
-  </div>
+    <!-- 메인 컨테이너 -->
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border-4 border-pink-200 overflow-hidden relative min-h-[620px] flex flex-col justify-between">
 
-  <!-- 2. 학습 화면 -->
-  <div class="screen" id="sc-practice">
-    <div class="header">
-      <span id="step-lbl">1 / 6</span>
-      <button class="btn-home-small" onclick="goHome()">🏠 첫 화면으로</button>
+        <!-- 헤더 -->
+        <header class="bg-gradient-to-r from-pink-400 to-rose-400 p-4 text-white text-center shadow-md relative">
+            <h1 class="text-xl font-bold tracking-wide flex items-center justify-center gap-2">
+                <i class="fa-solid fa-comments"></i>
+                의견 묻고 답하기
+            </h1>
+            <p class="text-xs text-pink-100 mt-1">일본어 회화 연습</p>
+            
+            <button id="btn-top-reset" onclick="resetApp()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white text-xs px-2.5 py-1.5 rounded-xl transition flex items-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> 처음으로
+            </button>
+        </header>
+
+        <!-- 1. 첫 화면 (마이크 설정 & 모드 선택) -->
+        <div id="screen-start" class="p-6 flex-1 flex flex-col justify-between items-center text-center">
+            <div class="my-auto space-y-6 w-full">
+                <div class="w-24 h-24 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-800 mb-2">회화 연습 모드 선택</h2>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        음성 인식(마이크)으로 연습하거나<br>마이크가 안 될 경우 직접 단어를 선택할 수 있어요.
+                    </p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <button onclick="initApp('voice')" class="w-full py-3.5 px-4 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span>마이크 사용하기 (음성 입력)</span>
+                    </button>
+                    <button onclick="initApp('touch')" class="w-full py-3.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition flex items-center justify-center gap-2 text-sm border border-gray-300">
+                        <i class="fa-solid fa-hand-pointer text-pink-500"></i>
+                        <span>직접 입력하기 (터치 선택)</span>
+                    </button>
+                </div>
+            </div>
+            <p class="text-[11px] text-gray-400 mb-2">※ 모든 일본어는 한자 없이 히라가나/가타카나로 제공됩니다.</p>
+        </div>
+
+        <!-- 2. 연습 화면 -->
+        <div id="screen-practice" class="hidden p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+            
+            <!-- 진행도 & 타이머 -->
+            <div class="flex items-center justify-between bg-pink-50 px-4 py-2.5 rounded-2xl text-xs font-bold text-pink-700">
+                <span id="progress-text">문제 1 / 6</span>
+                <span id="timer-text" class="flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i> 00:00
+                </span>
+            </div>
+
+            <!-- 질문 카드 -->
+            <div class="bg-gradient-to-br from-pink-50 to-rose-50 border-2 border-pink-200 rounded-2xl p-4 shadow-sm relative">
+                <div class="text-[11px] font-bold text-pink-600 mb-1 flex items-center justify-between">
+                    <span><i class="fa-solid fa-circle-question"></i> 질문 (상대방)</span>
+                    <button onclick="speakQuestion()" class="text-pink-500 hover:text-pink-700 text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> 다시듣기
+                    </button>
+                </div>
+                <div id="question-text" class="text-xl font-bold text-gray-800 font-jp tracking-wider text-center py-2">
+                    <!-- 질문 내용 삽입 -->
+                </div>
+            </div>
+
+            <!-- 대답 방식 선택 (1~4번 문제만 노출) -->
+            <div id="answer-type-section" class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-600 flex items-center gap-1">
+                    <i class="fa-solid fa-sliders text-pink-500"></i> 대답 성향을 선택하세요:
+                </label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button id="btn-type-pos" onclick="setAnswerType('pos')" class="py-2.5 px-3 rounded-xl border-2 border-gray-200 bg-white font-bold text-gray-700 hover:border-green-400 hover:bg-green-50 flex items-center justify-center gap-2 transition text-xs shadow-xs">
+                        <i class="fa-solid fa-circle-check text-green-500"></i>
+                        <span>긍정</span>
+                    </button>
+                    <button id="btn-type-neg" onclick="setAnswerType('neg')" class="py-2.5 px-3 rounded-xl border-2 border-gray-200 bg-white font-bold text-gray-700 hover:border-purple-400 hover:bg-purple-50 flex items-center justify-center gap-2 transition text-xs shadow-xs">
+                        <i class="fa-solid fa-circle-xmark text-purple-500"></i>
+                        <span>부정</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 입력 영역 (음성 인식 / 터치 타일) -->
+            <div class="space-y-2">
+                <!-- 1) 음성 입력 컨트롤 -->
+                <div id="input-voice-container" class="text-center py-2 space-y-2">
+                    <p id="mic-status-text" class="text-xs text-gray-500 font-medium">대답 성향을 선택 후 마이크 버튼을 누르세요</p>
+                    <button id="btn-mic" onclick="toggleMic()" class="w-16 h-16 bg-pink-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg transition active:scale-95 disabled:opacity-40" disabled>
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                </div>
+
+                <!-- 2) 터치 입력 타일 영역 -->
+                <div id="input-touch-container" class="hidden space-y-2">
+                    <p class="text-xs text-gray-500 font-medium text-center">단어 타일을 순서대로 터치하세요</p>
+                    <div id="tile-buttons" class="flex flex-wrap gap-2 justify-center py-1">
+                        <!-- 타일 버튼 삽입 -->
+                    </div>
+                </div>
+
+                <!-- 학생이 말하거나/선택한 텍스트 표시 -->
+                <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 min-h-[52px] flex items-center justify-center relative">
+                    <p id="user-input-display" class="text-base font-bold font-jp text-pink-600 tracking-wider text-center">
+                        -
+                    </p>
+                    <button id="btn-clear-input" onclick="clearUserInput()" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 정답 검사 및 결과 응답 영역 -->
+            <div>
+                <!-- 제출 버튼 -->
+                <button id="btn-submit" onclick="checkAnswer()" class="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-40" disabled>
+                    <i class="fa-solid fa-paper-plane"></i> 정답 확인하기
+                </button>
+
+                <!-- 정답/오답 결과 피드백 상자 -->
+                <div id="feedback-box" class="hidden mt-3 p-3.5 rounded-2xl border text-center space-y-2.5 animate-fade-in">
+                    <div id="feedback-message" class="font-bold text-sm"></div>
+                    
+                    <!-- 정답 표시 (한자 없음) -->
+                    <div class="bg-white p-2.5 rounded-xl border border-pink-100 text-xs">
+                        <span class="text-gray-400 block mb-0.5">올바른 대답:</span>
+                        <span id="correct-answer-text" class="font-bold font-jp text-pink-600 text-base tracking-wide"></span>
+                    </div>
+
+                    <!-- 오답 시 버튼 (다시하기 / 넘어가기) -->
+                    <div id="wrong-options" class="hidden grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="retryQuestion()" class="py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition">
+                            <i class="fa-solid fa-rotate-right"></i> 다시 하기
+                        </button>
+                        <button onclick="nextQuestion()" class="py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl text-xs transition">
+                            넘어가기 <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- 정답 시 다음문제 버튼 -->
+                    <button id="btn-next-correct" onclick="nextQuestion()" class="hidden w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1">
+                        <span>다음 문제로</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 최종 결과 화면 -->
+        <div id="screen-result" class="hidden p-6 flex-1 flex flex-col justify-between items-center text-center">
+            <div class="my-auto space-y-6 w-full">
+                <div class="w-20 h-20 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-bold text-gray-800">연습 완료!</h2>
+                    <p class="text-sm text-gray-500">수고하셨습니다. 회화 연습을 마쳤습니다.</p>
+                </div>
+
+                <div class="bg-pink-50 p-5 rounded-2xl border border-pink-200 space-y-3">
+                    <div class="flex justify-between items-center border-b border-pink-200 pb-2">
+                        <span class="text-xs font-bold text-gray-600">최종 점수</span>
+                        <span id="result-score-text" class="text-lg font-bold text-pink-600">6/6 문제 맞추셨습니다.</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-600">소요 시간</span>
+                        <span id="result-time-text" class="text-sm font-bold text-gray-700">00분 00초</span>
+                    </div>
+                </div>
+
+                <button onclick="resetApp()" class="w-full py-3.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>처음으로 돌아가기</span>
+                </button>
+            </div>
+        </div>
+
     </div>
-    <div class="progress"><div class="progress-fill" id="prog-fill"></div></div>
 
-    <div class="card" style="margin-top: 10px;">
-      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">질문 (A)를 듣고 일본어로 대답하세요</div>
-      <div class="q-text" id="q-text"></div>
-      <button class="btn-audio" onclick="playQuestionTTS()">🔊 질문 다시 듣기</button>
-    </div>
+    <!-- 스크립트 로직 -->
+    <script>
+        // 교과서 기준 6개 연습 문제 데이터 (한자 없음, 오직 히라가나/가타카나만 사용)
+        const QUESTIONS = [
+            {
+                id: 1,
+                question: "あの おんせんは どうですか。",
+                pos: "とても ゆうめいです。",
+                neg: "あまり ゆうめいじゃ ありません。",
+                rawPos: "とてもゆうめいです",
+                rawNeg: "あまりゆうめいじゃありません",
+                tilesPos: ["とても", "ゆうめいです"],
+                tilesNeg: ["あまり", "ゆうめいじゃ ありません"]
+            },
+            {
+                id: 2,
+                question: "その スマホは どうですか。",
+                pos: "とても べんりです。",
+                neg: "あまり べんりじゃ ありません。",
+                rawPos: "とてもべんりです",
+                rawNeg: "あまりべんりじゃありません",
+                tilesPos: ["とても", "べんりです"],
+                tilesNeg: ["あまり", "べんりじゃ ありません"]
+            },
+            {
+                id: 3,
+                question: "この まちは どうですか。",
+                pos: "とても にぎやかです。",
+                neg: "あまり にぎやかじゃ ありません。",
+                rawPos: "とてもにぎやかです",
+                rawNeg: "あまりにぎやかじゃありません",
+                tilesPos: ["とても", "にぎやかです"],
+                tilesNeg: ["あまり", "にぎやかじゃ ありません"]
+            },
+            {
+                id: 4,
+                question: "あの びょういんは どうですか。",
+                pos: "とても しんせつです。",
+                neg: "あまり しんせつじゃ ありません。",
+                rawPos: "とてもしんせつです",
+                rawNeg: "あまりしんせつじゃありません",
+                tilesPos: ["とても", "しんせつです"],
+                tilesNeg: ["あまり", "しんせつじゃ ありません"]
+            },
+            {
+                id: 5,
+                question: "あれが ふじさんです。",
+                fixedAnswer: "きれいですね。",
+                rawFixed: "きれいですね",
+                tilesFixed: ["きれいですね"],
+                isFixed: true
+            },
+            {
+                id: 6,
+                question: "この こうえん、 きれいだね。",
+                fixedAnswer: "うん。 ごみ ひとつ ないね。",
+                rawFixed: "うんごみひとつないね",
+                tilesFixed: ["うん。", "ごみ", "ひとつ", "ないね。"],
+                isFixed: true
+            }
+        ];
 
-    <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">어떤 대답을 만드시겠습니까?</div>
-    <div class="target-choice">
-      <button class="choice-btn active-b1" id="btn-b1" onclick="setTarget('b1')">B1 대답 (긍정)</button>
-      <button class="choice-btn" id="btn-b2" onclick="setTarget('b2')">B2 대답 (부정)</button>
-    </div>
+        // 앱 상태 변수
+        let inputMode = 'voice'; // 'voice' 또는 'touch'
+        let currentQuestionIdx = 0;
+        let selectedType = null; // 'pos' 또는 'neg' (5, 6번은 null)
+        let userInputText = "";
+        let correctCount = 0;
+        let startTime = null;
+        let timerInterval = null;
 
-    <!-- 음성 인식 모드 -->
-    <div id="box-voice" class="voice-box">
-      <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
-      <div style="font-size:0.8rem; color:#64748b;" id="mic-status">버튼을 누르고 일본어로 말씀하세요</div>
-      <div class="res-box" id="voice-res">음성을 기다리는 중...</div>
-    </div>
+        // 음성 인식 객체
+        let recognition = null;
+        let isRecording = false;
 
-    <!-- 단어 조합 모드 -->
-    <div id="box-puzzle" style="display:none;">
-      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">단어를 순서대로 누르면 대답이 완성됩니다:</div>
-      <div class="puzzle-workspace" id="p-ws"></div>
-      <div class="puzzle-pool" id="p-pool"></div>
-      <button class="btn btn-primary" id="btn-submit-puzzle" onclick="checkPuzzle()">정답 제출하기</button>
-    </div>
+        // 음성합성 (TTS)
+        const synth = window.speechSynthesis;
 
-    <div class="ans-reveal" id="ans-reveal">💡 정답 문장: <span id="ans-reveal-txt"></span></div>
-    <div class="feedback" id="fb-msg"></div>
-    <button class="btn btn-secondary" id="btn-next" style="display:none; margin-top:10px;" onclick="nextStep()">다음 문제로 ➡️</button>
-  </div>
+        // 마이크 인식 설정 초기화
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                return false;
+            }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP'; // 일본어 설정
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-  <!-- 3. 결과 화면 -->
-  <div class="screen" id="sc-result">
-    <h1>🎉 회화 연습 완료!</h1>
-    <p class="desc">오늘의 학습 결과를 확인해 보세요.</p>
-    <div class="report">
-      <div class="report-title">🎯 최종 점수</div>
-      <div class="score-badge" id="score-txt">0 / 60 점</div>
-    </div>
-    <div class="report">
-      <div class="report-title">⏱️ 소요 시간</div>
-      <div id="time-txt" style="font-size:1.1rem; font-weight:bold;">0초</div>
-    </div>
-    <div class="report">
-      <div class="report-title">👍 잘한 점</div>
-      <div style="font-size:0.85rem; color:#16a34a;">질문 청해 및 대답 문형을 이해하고 일본어로 구성해내는 능력이 아주 우수합니다!</div>
-    </div>
-    <div class="report">
-      <div class="report-title">💡 핵심 문법 팁</div>
-      <div style="font-size:0.85rem; color:#b45309;">na-형용사의 정중한 부정형 표현은 「~じゃ ありません」을 사용합니다. i-형용사의 부정 표현과 헷갈리지 않도록 주의하세요!</div>
-    </div>
-    <button class="btn btn-primary" onclick="goHome()">🔄 다시 처음부터 연습하기</button>
-  </div>
+            recognition.onstart = function() {
+                isRecording = true;
+                const micBtn = document.getElementById('btn-mic');
+                micBtn.classList.add('mic-recording', 'bg-rose-600');
+                micBtn.classList.remove('bg-pink-500');
+                document.getElementById('mic-status-text').innerText = "음성을 듣고 있어요... 말씀하세요!";
+            };
 
-</div>
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                // 한자를 히라가나로 변환 및 특수문자 제거 처리
+                transcript = convertKanjiToHiragana(transcript);
+                transcript = cleanJapaneseText(transcript);
+                userInputText = transcript;
+                updateUserInputDisplay();
+            };
 
-<script>
-  var DATA = [
-    {
-      q: "1. あの おんせんは どうですか。",
-      q_tts: "あの おんせんは どうですか。",
-      b1_raw: "とてもゆうめいです",
-      b2_raw: "あまりゆうめいじゃありません",
-      b1_txt: "とても ゆうめいです。",
-      b2_txt: "あまり ゆうめいじゃ ありません。",
-      p_b1: ["とても", "ゆうめい", "です"],
-      p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"],
-      d_b1: ["あまり", "ゆうめいっく"],
-      d_b2: ["とても", "ありませんでした"]
-    },
-    {
-      q: "2. その スマホは どうですか。",
-      q_tts: "その スマホは どうですか。",
-      b1_raw: "とてもべんりです",
-      b2_raw: "あまりべんりじゃありません",
-      b1_txt: "とても べんりです。",
-      b2_txt: "あまり べんりじゃ ありません。",
-      p_b1: ["とても", "べんり", "です"],
-      p_b2: ["あまり", "べんり", "じゃ", "ありません"],
-      d_b1: ["あまり", "べんりっく"],
-      d_b2: ["とても", "ありませんでした"]
-    },
-    {
-      q: "3. この 町は どうですか。",
-      q_tts: "この まちは どうですか。",
-      b1_raw: "とてもにぎやかです",
-      b2_raw: "あまりにぎやかじゃありません",
-      b1_txt: "とても にぎやかです。",
-      b2_txt: "あまり にぎやかじゃ ありません。",
-      p_b1: ["とても", "にぎやか", "です"],
-      p_b2: ["あまり", "にぎやか", "じゃ", "ありません"],
-      d_b1: ["あまり", "しずか"],
-      d_b2: ["```javascript
-      d_b2: ["とても", "にぎやかっく"]
-    },
-    {
-      q: "4. あの びょういんは どうですか。",
-      q_tts: "あの びょういんは どうですか。",
-      b1_raw: "とてもしんせつです",
-      b2_raw: "あまりしんせつじゃありません",
-      b1_txt: "とても しんせつです。",
-      b2_txt: "あまり しんせつじゃ ありません。",
-      p_b1: ["とても", "しんせつ", "です"],
-      p_b2: ["あまり", "しんせつ", "じゃ", "ありません"],
-      d_b1: ["あまり", "しんせっく"],
-      d_b2: ["```javascript
-      d_b2: ["とても", "くありません"]
-    },
-    {
-      q: "5. あれが ふじさんです。",
-      q_tts: "あれが ふじさんです。",
-      b1_raw: "きれいですね",
-      b2_raw: "あまりきれいじゃありません",
-      b1_txt: "きれいですね。",
-      b2_txt: "あまり きれいじゃ ありません。",
-      p_b1: ["きれい", "ですね"],
-      p_b2: ["あまり", "きれい", "じゃ", "ありません"],
-      d_b1: ["とても", "きれいっく"],
-      d_b2: ["あまり", "くありません"]
-    },
-    {
-      q: "6. この こうえん、きれいだね。",
-      q_tts: "この こうえん きれいだね",
-      b1_raw: "うんごみひとつないね",
-      b2_raw: "あまりきれいじゃないね",
-      b1_txt: "うん。ごみ ひとつ ないね。",
-      b2_txt: "あまり きれいじゃ ないね。",
-      p_b1: ["うん。", "ごみ", "ひとつ", "ないね"],
-      p_b2: ["あまり", "きれい", "じゃ", "ないね"],
-      d_b1: ["ふたつ", "ありません"],
-      d_b2: ["とても", "ありませんでした"]
-    }
-  ];
+            recognition.onerror = function(event) {
+                console.error("음성 인식 오류:", event.error);
+                document.getElementById('mic-status-text').innerText = "음성이 잘 들리지 않았어요. 다시 눌러주세요.";
+                stopRecordingState();
+            };
 
-  var KANJI_MAP = {
-    '甘利': 'あまり', '余り': 'あまり', '町': 'まち', 'ちょう': 'まち',
-    '有名': 'ゆうめい', '便利': 'べんり', '病院': 'びょういん',
-    '親切': 'しんせつ', '富士山': 'ふじさん', '綺麗': 'きれい',
-    '公園': 'こうえん', 'ゴミ': 'ごみ', '一つ': 'ひとつ'
-  };
+            recognition.onend = function() {
+                stopRecordingState();
+            };
 
-  var idx = 0;
-  var mode = 'voice';
-  var target = 'b1';
-  var puzzleAns = [];
-  var startTime = null;
-  var rec = null;
-  var isListening = false;
-  var score = 0;
-  var isEvaluated = false;
+            return true;
+        }
 
-  function initApp(selectedMode) {
-    mode = selectedMode;
-    idx = 0;
-    score = 0;
-    startTime = new Date();
-    
-    document.getElementById('sc-start').classList.remove('active');
-    document.getElementById('sc-result').classList.remove('active');
-    document.getElementById('sc-practice').classList.add('active');
-    
-    if (mode === 'voice') {
-      document.getElementById('box-voice').style.display = 'block';
-      document.getElementById('box-puzzle').style.display = 'none';
-      setupSpeech();
-    } else {
-      document.getElementById('box-voice').style.display = 'none';
-      document.getElementById('box-puzzle').style.display = 'block';
-    }
-    
-    renderStep();
-  }
+        // 음성 인식 결과에 섞여 나오는 한자를 교과서 단어 기준 히라가나로 치환하는 헬퍼 함수
+        function convertKanjiToHiragana(text) {
+            if (!text) return "";
+            
+            const kanjiMap = [
+                { kanji: /甘利|余り|あまり/g, hira: "あまり" },
+                { kanji: /温泉|おんせん/g, hira: "おんせん" },
+                { kanji: /有名|ゆうめい/g, hira: "ゆうめい" },
+                { kanji: /便利|べんり/g, hira: "べんり" },
+                { kanji: /賑やか|にぎやか/g, hira: "にぎやか" },
+                { kanji: /親切|しんせつ/g, hira: "しんせつ" },
+                { kanji: /綺麗|綺麗だ|きれい/g, hira: "きれい" },
+                { kanji: /ゴミ|ごみ/g, hira: "ごみ" },
+                { kanji: /一つ|ひとつ/g, hira: "ひとつ" },
+                { kanji: /無い|ない/g, hira: "ない" },
+                { kanji: /私|わたし/g, hira: "わたし" },
+                { kanji: /町|まち/g, hira: "まち" },
+                { kanji: /病院|びょういん/g, hira: "びょういん" },
+                { kanji: /富士山|ふじさん/g, hira: "ふじさん" },
+                { kanji: /公園|こうえん/g, hira: "こうえん" }
+            ];
 
-  function renderStep() {
-    isEvaluated = false;
-    var item = DATA[idx];
-    
-    document.getElementById('step-lbl').innerText = (idx + 1) + ' / ' + DATA.length;
-    document.getElementById('prog-fill').style.width = (((idx + 1) / DATA.length) * 100) + '%';
-    document.getElementById('q-text').innerText = item.q;
-    
-    document.getElementById('fb-msg').className = 'feedback';
-    document.getElementById('fb-msg').style.display = 'none';
-    document.getElementById('btn-next').style.display = 'none';
-    document.getElementById('ans-reveal').classList.remove('show');
-    document.getElementById('voice-res').innerText = '음성을 기다리는 중...';
-    
-    if (mode === 'puzzle') {
-      document.getElementById('btn-submit-puzzle').style.display = 'block';
-    }
-    
-    setTarget('b1');
-    setTimeout(playQuestionTTS, 300);
-  }
+            let result = text;
+            kanjiMap.forEach(item => {
+                result = result.replace(item.kanji, item.hira);
+            });
 
-  function setTarget(t) {
-    if (isEvaluated) return;
-    target = t;
-    document.getElementById('btn-b1').className = t === 'b1' ? 'choice-btn active-b1' : 'choice-btn';
-    document.getElementById('btn-b2').className = t === 'b2' ? 'choice-btn active-b2' : 'choice-btn';
-    
-    if (mode === 'puzzle') {
-      setupPuzzle();
-    }
-  }
+            return result;
+        }
 
-  function playQuestionTTS() {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(DATA[idx].q_tts);
-    u.lang = 'ja-JP';
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-  }
+        function stopRecordingState() {
+            isRecording = false;
+            const micBtn = document.getElementById('btn-mic');
+            micBtn.classList.remove('mic-recording', 'bg-rose-600');
+            micBtn.classList.add('bg-pink-500');
+            if (userInputText.trim().length === 0) {
+                document.getElementById('mic-status-text').innerText = "마이크 버튼을 누르고 말씀하세요";
+            } else {
+                document.getElementById('mic-status-text').innerText = "음성이 입력되었습니다!";
+            }
+        }
 
-  function setupSpeech() {
-    var Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) return;
-    
-    rec = new Speech();
-    rec.lang = 'ja-JP';
-    rec.interimResults = false;
-    
-    rec.onstart = function() {
-      isListening = true;
-      document.getElementById('mic-btn').classList.add('listening');
-      document.getElementById('mic-status').innerText = '듣고 있습니다...';
-    };
-    
-    rec.onend = function() {
-      isListening = false;
-      document.getElementById('mic-btn').classList.remove('listening');
-      document.getElementById('mic-status').innerText = '버튼을 누르고 일본어로 말씀하세요';
-    };
-    
-    rec.onresult = function(e) {
-      if (isEvaluated) return;
-      var raw = e.results[0][0].transcript;
-      var norm = convertKanji(raw);
-      document.getElementById('voice-res').innerText = norm;
-      evaluateAnswer(norm);
-    };
-  }
+        // 음성 인식 텍스트 정돈 (특수문자/공백 정리)
+        function cleanJapaneseText(text) {
+            return text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim();
+        }
 
-  function toggleMic() {
-    if (isEvaluated) return;
-    if (!rec) {
-      alert('이 브라우저는 음성 인식을 지원하지 않습니다. 단어 조합 모드를 이용해 주세요.');
-      return;
-    }
-    if (isListening) {
-      rec.stop();
-    } else {
-      rec.start();
-    }
-  }
+        // 앱 시작
+        function initApp(mode) {
+            inputMode = mode;
+            if (mode === 'voice') {
+                const supported = setupSpeechRecognition();
+                if (!supported) {
+                    alert("이 브라우저는 음성 인식을 지원하지 않습니다. 터치 입력 모드로 전환합니다.");
+                    inputMode = 'touch';
+                }
+            }
 
-  function convertKanji(str) {
-    var res = str.replace(/[\s\.\,\!\?。、]/g, '');
-    for (var k in KANJI_MAP) {
-      res = res.split(k).join(KANJI_MAP[k]);
-    }
-    return res;
-  }
+            // 상태 초기화
+            currentQuestionIdx = 0;
+            correctCount = 0;
+            
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-practice').classList.remove('hidden');
+            document.getElementById('btn-top-reset').classList.remove('hidden');
 
-  function setupPuzzle() {
-    var item = DATA[idx];
-    var correctArr = target === 'b1' ? item.p_b1 : item.p_b2;
-    var distArr = target === 'b1' ? item.d_b1 : item.d_b2;
-    
-    var pool = correctArr.concat(distArr).sort(function() { return Math.random() - 0.5; });
-    puzzleAns = [];
-    renderPuzzleWorkspace();
-    
-    var poolEl = document.getElementById('p-pool');
-    poolEl.innerHTML = '';
-    
-    pool.forEach(function(word) {
-      var chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.innerText = word;
-      chip.onclick = function() { selectChip(word, chip); };
-      poolEl.appendChild(chip);
-    });
-  }
+            startTimer();
+            loadQuestion();
+        }
 
-  function selectChip(word, el) {
-    if (isEvaluated || el.classList.contains('selected')) return;
-    el.classList.add('selected');
-    puzzleAns.push({ word: word, el: el });
-    renderPuzzleWorkspace();
-  }
+        // 타이머 시작
+        function startTimer() {
+            startTime = new Date();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diffSec = Math.floor((now - startTime) / 1000);
+                const mins = String(Math.floor(diffSec / 60)).padStart(2, '0');
+                const secs = String(diffSec % 60).padStart(2, '0');
+                document.getElementById('timer-text').innerHTML = `<i class="fa-regular fa-clock"></i> ${mins}:${secs}`;
+            }, 1000);
+        }
 
-  function renderPuzzleWorkspace() {
-    var ws = document.getElementById('p-ws');
-    ws.innerHTML = '';
-    
-    if (puzzleAns.length === 0) {
-      ws.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">단어를 선택해 주세요</span>';
-      return;
-    }
-    
-    puzzleAns.forEach(function(item, i) {
-      var chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.style.background = '#4f46e5';
-      chip.style.color = '#fff';
-      chip.innerText = item.word + ' ✕';
-      chip.onclick = function() {
-        if (isEvaluated) return;
-        item.el.classList.remove('selected');
-        puzzleAns.splice(i, 1);
-        renderPuzzleWorkspace();
-      };
-      ws.appendChild(chip);
-    });
-  }
+        // 문제 로드
+        function loadQuestion() {
+            const q = QUESTIONS[currentQuestionIdx];
+            selectedType = null;
+            userInputText = "";
+            
+            // 진행도 표시
+            document.getElementById('progress-text').innerText = `문제 ${currentQuestionIdx + 1} / ${QUESTIONS.length}`;
+            
+            // 질문 텍스트
+            document.getElementById('question-text').innerText = q.question;
+            
+            // 질문 음성 재생 (일반 속도)
+            speakTTS(q.question);
 
-  function checkPuzzle() {
-    if (isEvaluated) return;
-    if (puzzleAns.length === 0) {
-      alert('단어를 조합한 후 제출해 주세요.');
-      return;
-    }
-    var userStr = puzzleAns.map(function(i) { return i.word; }).join('');
-    evaluateAnswer(userStr);
-  }
+            // 대답 성향 선택 영역 (1~4번 문제만 표시, 5~6번은 비표시)
+            const typeSection = document.getElementById('answer-type-section');
+            if (q.isFixed) {
+                typeSection.classList.add('hidden');
+            } else {
+                typeSection.classList.remove('hidden');
+                resetTypeButtons();
+            }
 
-  function evaluateAnswer(userStr) {
-    isEvaluated = true;
-    
-    if (mode === 'voice') {
-      document.getElementById('voice-res').innerText = '⏳ 답변 채점 중... (' + userStr + ')';
-    } else {
-      document.getElementById('btn-submit-puzzle').style.display = 'none';
-    }
-    
-    setTimeout(function() {
-      var item = DATA[idx];
-      var targetRaw = target === 'b1' ? item.b1_raw : item.b2_raw;
-      
-      var uNorm = convertKanji(userStr).replace(/では/g, "じゃ");
-      var tNorm = convertKanji(targetRaw).replace(/では/g, "じゃ");
-      
-      var isCorrect = uNorm.indexOf(tNorm) !== -1 || tNorm.indexOf(uNorm) !== -1;
-      if (isCorrect) {
-        score += 10;
-      }
-      showResult(isCorrect);
-    }, 1200);
-  }
+            // 입력 모드별 UI 처리
+            const voiceContainer = document.getElementById('input-voice-container');
+            const touchContainer = document.getElementById('input-touch-container');
 
-  function showResult(isCorrect) {
-    var fb = document.getElementById('fb-msg');
-    var item = DATA[idx];
-    var correctTxt = target === 'b1' ? item.b1_txt : item.b2_txt;
-    
-    document.getElementById('ans-reveal-txt').innerText = correctTxt;
-    document.getElementById('ans-reveal').classList.add('show');
-    
-    fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
-    fb.innerText = isCorrect ? '⭕ 참 잘했습니다! (+10점)' : '❌ 아쉬워요! 정답 문장을 확인해 보세요.';
-    
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(correctTxt);
-      u.lang = 'ja-JP';
-      u.rate = 0.9;
-      window.speechSynthesis.speak(u);
-    }
-    
-    document.getElementById('btn-next').style.display = 'block';
-  }
+            if (inputMode === 'voice') {
+                voiceContainer.classList.remove('hidden');
+                touchContainer.classList.add('hidden');
+                document.getElementById('btn-mic').disabled = !q.isFixed;
+                document.getElementById('mic-status-text').innerText = q.isFixed 
+                    ? "마이크 버튼을 누르고 말씀하세요" 
+                    : "대답 성향(긍정/부정)을 먼저 선택하세요";
+            } else {
+                voiceContainer.classList.add('hidden');
+                touchContainer.classList.remove('hidden');
+                renderTouchTiles();
+            }
 
-  function nextStep() {
-    idx++;
-    if (idx < DATA.length) {
-      renderStep();
-    } else {
-      finishApp();
-    }
-  }
+            // 사용자 입력 화면 & 제출 버튼 초기화
+            updateUserInputDisplay();
+            hideFeedback();
+        }
 
-  function finishApp() {
-    document.getElementById('sc-practice').classList.remove('active');
-    document.getElementById('sc-result').classList.add('active');
-    
-    var duration = Math.round((new Date() - startTime) / 1000);
-    document.getElementById('time-txt').innerText = duration + ' 초';
-    document.getElementById('score-txt').innerText = score + ' / 60 점';
-  }
+        // 긍정 / 부정 버튼 상태 초기화
+        function resetTypeButtons() {
+            const btnPos = document.getElementById('btn-type-pos');
+            const btnNeg = document.getElementById('btn-type-neg');
+            
+            btnPos.className = "py-2.5 px-3 rounded-xl border-2 border-gray-200 bg-white font-bold text-gray-700 hover:border-green-400 hover:bg-green-50 flex items-center justify-center gap-2 transition text-xs shadow-xs";
+            btnNeg.className = "py-2.5 px-3 rounded-xl border-2 border-gray-200 bg-white font-bold text-gray-700 hover:border-purple-400 hover:bg-purple-50 flex items-center justify-center gap-2 transition text-xs shadow-xs";
+        }
 
-  function goHome() {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    if (rec && isListening) rec.stop();
-    
-    document.getElementById('sc-practice').classList.remove('active');
-    document.getElementById('sc-result').classList.remove('active');
-    document.getElementById('sc-start').classList.add('active');
-  }
-</script>
+        // 대답 성향 선택
+        function setAnswerType(type) {
+            selectedType = type;
+            const btnPos = document.getElementById('btn-type-pos');
+            const btnNeg = document.getElementById('btn-type-neg');
+
+            resetTypeButtons();
+
+            if (type === 'pos') {
+                btnPos.className = "py-2.5 px-3 rounded-xl border-2 border-green-500 bg-green-50 font-bold text-green-700 flex items-center justify-center gap-2 transition text-xs shadow-sm";
+            } else {
+                btnNeg.className = "py-2.5 px-3 rounded-xl border-2 border-purple-500 bg-purple-50 font-bold text-purple-700 flex items-center justify-center gap-2 transition text-xs shadow-sm";
+            }
+
+            // 마이크 활성화 및 터치 타일 재구성
+            if (inputMode === 'voice') {
+                document.getElementById('btn-mic').disabled = false;
+                document.getElementById('mic-status-text').innerText = "마이크 버튼을 누르고 말씀하세요";
+            } else {
+                renderTouchTiles();
+            }
+
+            userInputText = "";
+            updateUserInputDisplay();
+        }
+
+        // 터치 타일 버튼 생성
+        function renderTouchTiles() {
+            const tileContainer = document.getElementById('tile-buttons');
+            tileContainer.innerHTML = "";
+
+            const q = QUESTIONS[currentQuestionIdx];
+            let tiles = [];
+
+            if (q.isFixed) {
+                tiles = q.tilesFixed;
+            } else if (selectedType === 'pos') {
+                tiles = q.tilesPos;
+            } else if (selectedType === 'neg') {
+                tiles = q.tilesNeg;
+            } else {
+                tileContainer.innerHTML = `<p class="text-xs text-gray-400 py-2">대답 성향을 먼저 선택해주세요.</p>`;
+                return;
+            }
+
+            // 타일 버튼 배치
+            tiles.forEach((tile) => {
+                const btn = document.createElement('button');
+                btn.className = "py-2 px-3.5 bg-white border-2 border-pink-200 hover:border-pink-400 active:bg-pink-100 rounded-xl font-jp text-sm font-bold text-pink-700 shadow-xs transition";
+                btn.innerText = tile;
+                btn.onclick = () => {
+                    userInputText += (userInputText ? " " : "") + tile;
+                    updateUserInputDisplay();
+                };
+                tileContainer.appendChild(btn);
+            });
+        }
+
+        // 사용자 입력 디스플레이 업데이트
+        function updateUserInputDisplay() {
+            const display = document.getElementById('user-input-display');
+            const clearBtn = document.getElementById('btn-clear-input');
+            const submitBtn = document.getElementById('btn-submit');
+
+            if (userInputText.trim().length > 0) {
+                display.innerText = userInputText;
+                clearBtn.classList.remove('hidden');
+                submitBtn.disabled = false;
+            } else {
+                display.innerText = "-";
+                clearBtn.classList.add('hidden');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // 사용자 입력 지우기
+        function clearUserInput() {
+            userInputText = "";
+            updateUserInputDisplay();
+        }
+
+        // 마이크 토글
+        function toggleMic() {
+            if (!recognition) return;
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                userInputText = "";
+                updateUserInputDisplay();
+                recognition.start();
+            }
+        }
+
+        // 질문 음성 읽기 (TTS - 일반 속도)
+        function speakQuestion() {
+            const q = QUESTIONS[currentQuestionIdx];
+            speakTTS(q.question);
+        }
+
+        // TTS 발음 실행 (일반 자연스러운 속도)
+        function speakTTS(text) {
+            if (!synth) return;
+            synth.cancel(); // 이전 음성 중단
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ja-JP';
+            utterance.rate = 1.0; // 일반 속도
+            synth.speak(utterance);
+        }
+
+        // 정답 검사
+        function checkAnswer() {
+            const q = QUESTIONS[currentQuestionIdx];
+            let expectedText = "";
+            let expectedRaw = "";
+
+            if (q.isFixed) {
+                expectedText = q.fixedAnswer;
+                expectedRaw = q.rawFixed;
+            } else {
+                if (selectedType === 'pos') {
+                    expectedText = q.pos;
+                    expectedRaw = q.rawPos;
+                } else if (selectedType === 'neg') {
+                    expectedText = q.neg;
+                    expectedRaw = q.rawNeg;
+                } else {
+                    alert("대답 성향(긍정/부정)을 선택해주세요.");
+                    return;
+                }
+            }
+
+            // 공백 제거 후 비교 (정확도 확보)
+            const cleanUser = userInputText.replace(/\s+/g, "").toLowerCase();
+            const cleanExpected = expectedRaw.replace(/\s+/g, "").toLowerCase();
+
+            // 엄격한 정답 판정 (부분 단어 언급 방지)
+            const isCorrect = (cleanUser === cleanExpected);
+
+            showFeedback(isCorrect, expectedText);
+
+            // 정답 문장 음성으로 한 번 읽어주기
+            speakTTS(expectedText);
+
+            if (isCorrect) {
+                correctCount++;
+            }
+        }
+
+        // 피드백 박스 표시
+        function showFeedback(isCorrect, correctAnswer) {
+            const feedbackBox = document.getElementById('feedback-box');
+            const msgEle = document.getElementById('feedback-message');
+            const correctEle = document.getElementById('correct-answer-text');
+            const wrongOpts = document.getElementById('wrong-options');
+            const nextBtnCorrect = document.getElementById('btn-next-correct');
+
+            feedbackBox.classList.remove('hidden');
+            correctEle.innerText = correctAnswer;
+
+            if (isCorrect) {
+                feedbackBox.className = "mt-3 p-3.5 rounded-2xl border border-green-200 bg-green-50 text-center space-y-2.5";
+                msgEle.className = "font-bold text-sm text-green-700 flex items-center justify-center gap-1.5";
+                msgEle.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i> 정답입니다! 참 잘했어요!`;
+                
+                wrongOpts.classList.add('hidden');
+                nextBtnCorrect.classList.remove('hidden');
+            } else {
+                feedbackBox.className = "mt-3 p-3.5 rounded-2xl border border-rose-200 bg-rose-50 text-center space-y-2.5";
+                msgEle.className = "font-bold text-sm text-rose-700 flex items-center justify-center gap-1.5";
+                msgEle.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> 아쉬워요! 다시 도전해보세요.`;
+                
+                wrongOpts.classList.remove('hidden');
+                nextBtnCorrect.classList.add('hidden');
+            }
+        }
+
+        // 피드백 숨기기
+        function hideFeedback() {
+            document.getElementById('feedback-box').classList.add('hidden');
+        }
+
+        // 다시 하기 (오답 시)
+        function retryQuestion() {
+            userInputText = "";
+            updateUserInputDisplay();
+            hideFeedback();
+            if (inputMode === 'voice') {
+                document.getElementById('mic-status-text').innerText = "마이크 버튼을 누르고 다시 말씀하세요";
+            }
+        }
+
+        // 다음 문제로 넘어가기
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < QUESTIONS.length) {
+                loadQuestion();
+            } else {
+                showFinalResult();
+            }
+        }
+
+        // 최종 결과 화면 출력
+        function showFinalResult() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            const now = new Date();
+            const diffSec = Math.floor((now - startTime) / 1000);
+            const mins = Math.floor(diffSec / 60);
+            const secs = diffSec % 60;
+
+            document.getElementById('screen-practice').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            document.getElementById('result-score-text').innerText = `${correctCount}/${QUESTIONS.length} 문제 맞추셨습니다.`;
+            document.getElementById('result-time-text').innerText = `${mins > 0 ? mins + '분 ' : ''}${secs}초`;
+        }
+
+        // 처음으로 돌아가기 (초기화)
+        function resetApp() {
+            if (timerInterval) clearInterval(timerInterval);
+            synth.cancel();
+            if (recognition && isRecording) recognition.stop();
+
+            document.getElementById('screen-practice').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('btn-top-reset').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
