@@ -6,7 +6,7 @@
   <title>일본어 회화 연습 마스터</title>
   <style>
     :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif, system-ui; }
     body { background: var(--bg); color: #1e293b; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .container { max-width: 550px; width: 100%; background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .screen { display: none; }
@@ -54,7 +54,7 @@
   <div class="screen active" id="sc-start">
     <h1>일본어 회화 연습을 시작해볼까요?</h1>
     <p class="desc">일본어 질문(A)을 듣고 알맞은 대답을 완성하는 회화 연습입니다.<br>정답이 먼저 보이지 않으니 직접 기억해서 말하거나 맞춰보세요!</p>
-    <div class="notice">💡 <strong>마이크 안내:</strong> [음성 말하기] 모드 이용 시 브라우저 상단의 <strong>마이크 허용</strong>을 눌러주세요. 환경이 제한되거나 소음이 있다면 <strong>[단어 조합하기]</strong> 모드를 권장합니다.</div>
+    <div class="notice">💡 <strong>마이크 안내:</strong> [음성 말하기] 모드 이용 시 브라우저 상단의 <strong>마이크 허용</strong>을 눌러주세요. 소음이 있거나 설정이 어려우면 <strong>[단어 조합하기]</strong> 모드를 사용해 보세요.</div>
     <button class="btn btn-primary" onclick="initApp('voice')">🎙️ 음성으로 말하며 시작하기</button>
     <button class="btn btn-secondary" onclick="initApp('puzzle')">⌨️ 단어 조합하여 시작하기</button>
   </div>
@@ -125,7 +125,6 @@
 </div>
 
 <script>
-  // 일본어 학습 데이터
   var DATA = [
     {
       q: "1. あの おんせんは どうですか。",
@@ -137,7 +136,7 @@
       p_b1: ["とても", "ゆうめい", "です"],
       p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"],
       d_b1: ["あまり", "ゆうめいっく"],
-      d_b2: ["とても", "くありません"]
+      d_b2: ["とても", "ありませんでした"]
     },
     {
       q: "2. その スマホは どうですか。",
@@ -149,7 +148,6 @@
       p_b1: ["とても", "べんり", "です"],
       p_b2: ["あまり", "べんり", "じゃ", "ありません"],
       d_b1: ["あまり", "べんりっく"],
-      d_b2: ["```javascript
       d_b2: ["とても", "ありませんでした"]
     },
     {
@@ -162,6 +160,7 @@
       p_b1: ["とても", "にぎやか", "です"],
       p_b2: ["あまり", "にぎやか", "じゃ", "ありません"],
       d_b1: ["あまり", "しずか"],
+      d_b2: ["```javascript
       d_b2: ["とても", "にぎやかっく"]
     },
     {
@@ -174,6 +173,7 @@
       p_b1: ["とても", "しんせつ", "です"],
       p_b2: ["あまり", "しんせつ", "じゃ", "ありません"],
       d_b1: ["あまり", "しんせっく"],
+      d_b2: ["```javascript
       d_b2: ["とても", "くありません"]
     },
     {
@@ -202,7 +202,6 @@
     }
   ];
 
-  // 한자 -> 히라가나 맵 (음성 인식 변환용)
   var KANJI_MAP = {
     '甘利': 'あまり', '余り': 'あまり', '町': 'まち', 'ちょう': 'まち',
     '有名': 'ゆうめい', '便利': 'べんり', '病院': 'びょういん',
@@ -276,6 +275,7 @@
   }
 
   function playQuestionTTS() {
+    if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(DATA[idx].q_tts);
     u.lang = 'ja-JP';
@@ -431,11 +431,13 @@
     fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
     fb.innerText = isCorrect ? '⭕ 참 잘했습니다! (+10점)' : '❌ 아쉬워요! 정답 문장을 확인해 보세요.';
     
-    window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(correctTxt);
-    u.lang = 'ja-JP';
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(correctTxt);
+      u.lang = 'ja-JP';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }
     
     document.getElementById('btn-next').style.display = 'block';
   }
@@ -459,7 +461,7 @@
   }
 
   function goHome() {
-    window.speechSynthesis.cancel();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (rec && isListening) rec.stop();
     
     document.getElementById('sc-practice').classList.remove('active');
