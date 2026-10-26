@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>고등학교 일본어 - 의견 묻고 답하기 (p.73)</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --correct: #10b981;
+      --incorrect: #ef4444;
+      --accent: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      text-align: center;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 16px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e2e8f0;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 25%;
+      transition: width 0.3s ease;
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .question-card {
+      background: #f1f5f9;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .question-number {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .question-subtext {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .audio-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .audio-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .options-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .options-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      background: white;
+      text-align: left;
+    }
+
+    .option-tag {
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .tag-b1 { background: #dbeafe; color: #1e40af; }
+    .tag-b2 { background: #fef3c7; color: #92400e; }
+
+    .option-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .option-meaning {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .interaction-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .mic-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .mic-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .mic-btn.recording {
+      animation: pulse 1.5s infinite;
+      background: #dc2626;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .mic-status {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .result-box {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      padding: 10px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .feedback-msg {
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      min-height: 24px;
+    }
+
+    .feedback-msg.correct { color: var(--correct); }
+    .feedback-msg.incorrect { color: var(--incorrect); }
+
+    .toggle-mode-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* 퍼즐 모드 스타일 */
+    .puzzle-container {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .puzzle-target-select {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .target-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .target-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .puzzle-answer-box {
+      width: 100%;
+      min-height: 50px;
+      border: 2px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .puzzle-pieces-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .word-chip {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .word-chip:hover {
+      background: #c7d2fe;
+    }
+
+    .submit-puzzle-btn {
+      background: var(--correct);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="title">의견 묻고 답하기 회화 연습</div>
+    <div class="subtitle">교재 p.73 문형 연습 (음성 / 조합 모드)</div>
+  </header>
+
+  <div class="score-board">
+    <span>진행 상황: <span id="current-q">1</span> / 4</span>
+    <span>점수: <span id="score">0</span>점</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <!-- 질문 영역 -->
+  <div class="question-card">
+    <span class="question-number" id="q-num-tag">문항 1</span>
+    <div class="question-text" id="q-text">あの おんせんの どうですか。</div>
+    <div class="question-subtext" id="q-subtext">저 온천은 어떻습니까?</div>
+    <button class="audio-btn" onclick="playQuestionAudio()">🔊 질문 다시 듣기</button>
+  </div>
+
+  <!-- 보기 영역 -->
+  <div class="options-container" id="options-box">
+    <div class="option-card">
+      <span class="option-tag tag-b1">B1 (긍정)</span>
+      <div class="option-text" id="opt-b1-text">とても ゆうめいです。</div>
+      <div class="option-meaning" id="opt-b1-sub">매우 유명합니다.</div>
+    </div>
+    <div class="option-card">
+      <span class="option-tag tag-b2">B2 (부정)</span>
+      <div class="option-text" id="opt-b2-text">あまり ゆうめいじゃ ありません。</div>
+      <div class="option-meaning" id="opt-b2-sub">그다지 유명하지 않습니다.</div>
+    </div>
+  </div>
+
+  <!-- 음성 모드 영역 -->
+  <div class="interaction-zone" id="speech-zone">
+    <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">
+      <span style="font-size: 1.5rem;">🎙️</span>
+      <span style="font-size: 0.75rem; margin-top: 2px;">말하기</span>
+    </button>
+    <div class="mic-status" id="mic-status">버튼을 누르고 일본어로 말해보세요.</div>
+
+    <div class="result-box" id="result-display">
+      <span style="font-size: 0.85rem; color: #94a3b8;">인식 결과 (히라가나 변환):</span>
+      <div id="recognized-text" style="color: #4f46e5; margin-top: 2px;">-</div>
+    </div>
+  </div>
+
+  <!-- 단어 퍼즐 모드 영역 -->
+  <div class="puzzle-container" id="puzzle-zone">
+    <div class="puzzle-target-select">
+      <button class="target-btn active" id="target-b1-btn" onclick="selectPuzzleTarget('B1')">B1 (긍정) 답하기</button>
+      <button class="target-btn" id="target-b2-btn" onclick="selectPuzzleTarget('B2')">B2 (부정) 답하기</button>
+    </div>
+
+    <div class="puzzle-answer-box" id="puzzle-answer-box">
+      <!-- 선택된 단어 조각들이 들어가는 곳 -->
+    </div>
+
+    <div class="puzzle-pieces-box" id="puzzle-pieces-box">
+      <!-- 보기 단어 조각들 -->
+    </div>
+
+    <button class="submit-puzzle-btn" onclick="checkPuzzleAnswer()">제출하여 정답 확인</button>
+  </div>
+
+  <div class="feedback-msg" id="feedback-msg"></div>
+
+  <button class="toggle-mode-btn" id="toggle-mode-btn" onclick="toggleMode()">
+    💡 마이크 사용이 어렵다면? [단어 조합 퀴즈 모드]로 변경하기
+  </button>
+</div>
+
+<script>
+  // 문항 데이터
+  const questions = [
+    {
+      id: 1,
+      numText: "문항 1",
+      displayQ: "あの おんせんの どうですか。",
+      ttsText: "あの おんせんの どうですか",
+      subQ: "저 온천은 어떻습니까?",
+      b1: "とても ゆうめいです。",
+      b1Sub: "매우 유명합니다.",
+      b1Pure: "とてもゆうめいです",
+      b2: "あまり ゆうめいじゃ ありません。",
+      b2Sub: "그다지 유명하지 않습니다.",
+      b2Pure: "あまりゆうめいじゃありません",
+      piecesB1: ["とても", "ゆうめいです", "あまり", "ゆうめいっく"],
+      piecesB2: ["あまり", "ゆうめいじゃ", "ありません", "ありませんでした", "くありません"]
+    },
+    {
+      id: 2,
+      numText: "문항 2",
+      displayQ: "その スマホは どうですか。",
+      ttsText: "その スマホは どうですか",
+      subQ: "그 스마트폰은 어떻습니까?",
+      b1: "とても べんりです。",
+      b1Sub: "매우 편리합니다.",
+      b1Pure: "とてもべんりです",
+      b2: "あまり べんりじゃ ありません。",
+      b2Sub: "그다지 편리하지 않습니다.",
+      b2Pure: "あまりべんりじゃありません",
+      piecesB1: ["とても", "べんりです", "あまり", "べんりっく"],
+      piecesB2: ["あまり", "べんりじゃ", "ありません", "くありません", "べんりっく"]
+    },
+    {
+      id: 3,
+      numText: "문항 3",
+      displayQ: "この 町は どうですか。",
+      ttsText: "この まちは どうですか", // 'まち' 발음 보장
+      subQ: "이 마을은 어떻습니까?",
+      b1: "とても にぎやかです。",
+      b1Sub: "매우 번화합니다.",
+      b1Pure: "とてもにぎやかです",
+      b2: "あまり にぎやかじゃ ありません。",
+      b2Sub: "그다지 번화하지 않습니다.",
+      b2Pure: "あまりにぎやかじゃありません",
+      piecesB1: ["とても", "にぎやかです", "あまり", "にぎやかっく"],
+      piecesB2: ["あまり", "にぎやかじゃ", "ありません", "ありませんでした", "くありません"]
+    },
+    {
+      id: 4,
+      numText: "문항 4",
+      displayQ: "あの びょういんは どうですか。",
+      ttsText: "あの びょういんは どうですか",
+      subQ: "저 병원은 어떻습니까?",
+      b1: "とても しんせつです。",
+      b1Sub: "매우 친절합니다.",
+      b1Pure: "とてもしんせつです",
+      b2: "あまり しんせつじゃ ありません。",
+      b2Sub: "그다지 친절하지 않습니다.",
+      b2Pure: "あまりしんせつじゃありません",
+      piecesB1: ["とても", "しんせつです", "あまり", "しんせっく"],
+      piecesB2: ["あまり", "しんせつじゃ", "ありません", "くありません", "しんせっく"]
+    }
+  ];
+
+  let currentIdx = 0;
+  let score = 0;
+  let isRecording = false;
+  let recognition = null;
+  let isPuzzleMode = false;
+  let selectedPuzzleTarget = 'B1';
+  let userPuzzleSelection = [];
+
+  // 초기화
+  window.onload = () => {
+    initSpeechRecognition();
+    loadQuestion(0);
+  };
+
+  // 질문 로드
+  function loadQuestion(idx) {
+    const q = questions[idx];
+    document.getElementById('current-q').textContent = idx + 1;
+    document.getElementById('progress-fill').style.width = `${((idx + 1) / 4) * 100}%`;
+    document.getElementById('q-num-tag').textContent = q.numText;
+    document.getElementById('q-text').textContent = q.displayQ;
+    document.getElementById('q-subtext').textContent = q.subQ;
+
+    document.getElementById('opt-b1-text').textContent = q.b1;
+    document.getElementById('opt-b1-sub').textContent = q.b1Sub;
+    document.getElementById('opt-b2-text').textContent = q.b2;
+    document.getElementById('opt-b2-sub').textContent = q.b2Sub;
+
+    document.getElementById('recognized-text').textContent = "-";
+    document.getElementById('feedback-msg').textContent = "";
+    document.getElementById('feedback-msg').className = "feedback-msg";
+
+    if (isPuzzleMode) {
+      setupPuzzleUI();
+    }
+
+    setTimeout(() => {
+      playQuestionAudio();
+    }, 400);
+  }
+
+  // TTS 읽기
+  function playQuestionAudio() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const q = questions[currentIdx];
+      const utter = new SpeechSynthesisUtterance(q.ttsText);
+      utter.lang = 'ja-JP';
+      utter.rate = 0.9;
+      window.speechSynthesis.speak(utter);
+    }
+  }
+
+  // 한자 -> 히라가나 매핑 함수
+  function convertKanjiToHiragana(str) {
+    let result = str;
+
+    // 공백/특수문자 제거
+    result = result.replace(/[\s\t\n\r\.\?\!。？]/g, '');
+
+    // 인명 및 한자 예외 치환
+    result = result.replace(/甘利/g, 'あまり');
+    result = result.replace(/余り/g, 'あまり');
+
+    result = result.replace(/温泉/g, 'おんせん');
+    result = result.replace(/有名/g, 'ゆうめい');
+    result = result.replace(/便利/g, 'べんり');
+
+    // 町 / ちょう -> まち
+    result = result.replace(/町/g, 'まち');
+    result = result.replace(/ちょう/g, 'まち');
+
+    result = result.replace(/病院/g, 'びょういん');
+    result = result.replace(/親切/g, 'しんせつ');
+
+    // 음성 인식 회화체 대응
+    result = result.replace(/では/g, 'じゃ');
+
+    return result;
+  }
+
+  // 음성 인식 초기화
+  function initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('mic-btn').classList.add('recording');
+        document.getElementById('mic-status').textContent = "듣고 있습니다... 발음해보세요!";
+      };
+
+      recognition.onresult = (event) => {
+        const rawTranscript = event.results[0][0].transcript;
+        const processedTranscript = convertKanjiToHiragana(rawTranscript);
+
+        document.getElementById('recognized-text').textContent = processedTranscript;
+        checkSpeechAnswer(processedTranscript);
+      };
+
+      recognition.onerror = (event) => {
+        stopRecordingUI();
+        document.getElementById('mic-status').textContent = "음성을 인식하지 못했습니다. 다시 시도해 주세요.";
+      };
+
+      recognition.onend = () => {
+        stopRecordingUI();
+      };
+    } else {
+      document.getElementById('mic-status').textContent = "이 브라우저는 음성 인식을 지원하지 않습니다. 조합 모드를 이용해 주세요.";
+    }
+  }
+
+  function toggleRecording() {
+    if (!recognition) {
+      alert("현재 브라우저에서 음성 인식을 지원하지 않거나 권한이 없습니다.");
+      return;
+    }
+
+    if (isRecording) {
+      recognition.stop();
+      stopRecordingUI();
+    } else {
+      try {
+        recognition.start();
+      } catch (e) {
+        recognition.stop();
+        stopRecordingUI();
+      }
+    }
+  }
+
+  function stopRecordingUI() {
+    isRecording = false;
+    document.getElementById('mic-btn').classList.remove('recording');
+    document.getElementById('mic-status').textContent = "버튼을 누르고 일본어로 말해보세요.";
+  }
+
+  // 음성 답안 채점
+  function checkSpeechAnswer(userText) {
+    const q = questions[currentIdx];
+    const targetB1 = convertKanjiToHiragana(q.b1Pure);
+    const targetB2 = convertKanjiToHiragana(q.b2Pure);
+
+    const feedbackEl = document.getElementById('feedback-msg');
+
+    if (userText === targetB1 || userText === targetB2) {
+      feedbackEl.textContent = "⭕ 정확한 발음입니다! 정답입니다.";
+      feedbackEl.className = "feedback-msg correct";
+      score += 25;
+      document.getElementById('score').textContent = score;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 1500);
+    } else {
+      feedbackEl.textContent = "❌ 문장이 일치하지 않습니다. 보기의 문장을 다시 확인해보세요.";
+      feedbackEl.className = "feedback-msg incorrect";
+    }
+  }
+
+  // 퍼즐 모드 전환
+  function toggleMode() {
+    isPuzzleMode = !isPuzzleMode;
+    const speechZone = document.getElementById('speech-zone');
+    const puzzleZone = document.getElementById('puzzle-zone');
+    const toggleBtn = document.getElementById('toggle-mode-btn');
+
+    if (isPuzzleMode) {
+      speechZone.classList.add('hidden');
+      puzzleZone.style.display = 'flex';
+      toggleBtn.textContent = "🎙️ [음성 말하기 모드]로 돌아가기";
+      setupPuzzleUI();
+    } else {
+      speechZone.classList.remove('hidden');
+      puzzleZone.style.display = 'none';
+      toggleBtn.textContent = "💡 마이크 사용이 어렵다면? [단어 조합 퀴즈 모드]로 변경하기";
+    }
+  }
+
+  function selectPuzzleTarget(target) {
+    selectedPuzzleTarget = target;
+    document.getElementById('target-b1-btn').classList.toggle('active', target === 'B1');
+    document.getElementById('target-b2-btn').classList.toggle('active', target === 'B2');
+    setupPuzzleUI();
+  }
+
+  function setupPuzzleUI() {
+    const q = questions[currentIdx];
+    userPuzzleSelection = [];
+    const answerBox = document.getElementById('puzzle-answer-box');
+    const piecesBox = document.getElementById('puzzle-pieces-box');
+
+    answerBox.innerHTML = '';
+    piecesBox.innerHTML = '';
+
+    const pieces = selectedPuzzleTarget === 'B1' ? [...q.piecesB1] : [...q.piecesB2];
+    // 배열 섞기
+    pieces.sort(() => Math.random() - 0.5);
+
+    pieces.forEach((pieceText, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'word-chip';
+      chip.textContent = pieceText;
+      chip.onclick = () => handlePieceClick(pieceText, chip);
+      piecesBox.appendChild(chip);
+    });
+  }
+
+  function handlePieceClick(text, element) {
+    userPuzzleSelection.push(text);
+
+    // 답변 상자로 이동
+    const answerBox = document.getElementById('puzzle-answer-box');
+    const selectedChip = document.createElement('div');
+    selectedChip.className = 'word-chip';
+    selectedChip.textContent = text;
+    selectedChip.onclick = () => {
+      // 선택 취소 처리
+      userPuzzleSelection = userPuzzleSelection.filter(t => t !== text);
+      selectedChip.remove();
+      element.style.display = 'inline-block';
+    };
+
+    answerBox.appendChild(selectedChip);
+    element.style.display = 'none';
+  }
+
+  function checkPuzzleAnswer() {
+    const q = questions[currentIdx];
+    const userCombined = userPuzzleSelection.join('');
+    const targetText = selectedPuzzleTarget === 'B1' ? q.b1Pure : q.b2Pure;
+
+    const feedbackEl = document.getElementById('feedback-msg');
+
+    if (userCombined === targetText) {
+      feedbackEl.textContent = "⭕ 올바른 순서로 조합하셨습니다! 정답입니다.";
+      feedbackEl.className = "feedback-msg correct";
+      score += 25;
+      document.getElementById('score').textContent = score;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 1500);
+    } else {
+      feedbackEl.textContent = "❌ 단어 순서가 틀렸거나 함정 단어가 포함되었습니다. 다시 조합해보세요.";
+      feedbackEl.className = "feedback-msg incorrect";
+    }
+  }
+
+  function nextQuestion() {
+    if (currentIdx < questions.length - 1) {
+      currentIdx++;
+      loadQuestion(currentIdx);
+    } else {
+      alert(`🎉 모든 연습을 완료했습니다!\n최종 점수: ${score}점`);
+      currentIdx = 0;
+      score = 0;
+      document.getElementById('score').textContent = score;
+      loadQuestion(0);
+    }
+  }
+</script>
+
+</body>
+</html>
