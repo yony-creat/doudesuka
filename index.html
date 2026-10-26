@@ -170,4 +170,342 @@
 
 오른쪽 에디터 화면에서 바로 **`Preview`**를 눌러 확인하시거나, 아래 코드 우상단의 **[Copy]** 버튼으로 전체를 복사하여 `index.html`로 저장해 사용하실 수 있습니다.
 
-http://googleusercontent.com/immersive_entry_chip/0
+http://googleusercontent.com/immersive_entry_chip/0"とても", "べんりじゃ", "ありません"]
+    },
+    {
+      q_display: "3. この 町は どうですか。",
+      q_tts: "この まちは どうですか。",
+      b1_raw: "とてもにぎやかです",
+      b2_raw: "あまりにぎやかじゃありません",
+      b1_text: "とても にぎやかです。",
+      b2_text: "あまり にぎやかじゃ ありません。",
+      puzzle_b1: ["とても", "にぎやか", "です"],
+      puzzle_b2: ["あまり", "にぎやか", "じゃ", "ありません"],
+      distractors_b1: ["あまり", "しずか", "じゃ"],
+      distractors_b2: ["とても", "にぎやかだ", "ないです"]
+    },
+    {
+      q_display: "4. あの びょういんは どうですか。",
+      q_tts: "あの びょういんは どうですか。",
+      b1_raw: "とてもしんせつです",
+      b2_raw: "あまりしんせつじゃありません",
+      b1_text: "とても しんせつです。",
+      b2_text: "あまり しんせつじゃ ありません。",
+      puzzle_b1: ["とても", "しんせつ", "です"],
+      puzzle_b2: ["あまり", "しんせつ", "じゃ", "ありません"],
+      distractors_b1: ["あまり", "べんり", "じゃ"],
+      distractors_b2: ["とても", "しんせつで", "ありません"]
+    },
+    {
+      q_display: "5. あれが ふじさんです。",
+      q_tts: "あれが ふじさんです。",
+      b1_raw: "きれいですね",
+      b2_raw: "あまりきれいじゃありません",
+      b1_text: "きれいですね。",
+      b2_text: "あまり きれいじゃ ありません。",
+      puzzle_b1: ["きれい", "ですね"],
+      puzzle_b2: ["あまり", "きれい", "じゃ", "ありません"],
+      distractors_b1: ["あまり", "とても", "です"],
+      distractors_b2: ["とても", "きれいだ", "ないです"]
+    },
+    {
+      q_display: "6. この こうえん、きれいだね。",
+      q_tts: "この こうえん、きれいだね。",
+      b1_raw: "うん。ごみひとつないね",
+      b2_raw: "あまりきれいじゃないね",
+      b1_text: "うん。ごみ ひとつ ないね。",
+      b2_text: "あまり きれいじゃないね。",
+      puzzle_b1: ["うん。", "ごみ", "ひとつ", "ないね"],
+      puzzle_b2: ["あまり", "きれい", "じゃないね"],
+      distractors_b1: ["あまり", "ひとつも", "ない"],
+      distractors_b2: ["とても", "じゃ", "ありません"]
+    }
+  ];
+
+  // Kanji to Hiragana Mapping for robust STT evaluation
+  const kanjiMap = {
+    '甘利': 'あまり', '町': 'まち', '有名': 'ゆうめい',
+    '便利': 'べんり', '病院': 'びょういん', '親切': 'しんせつ',
+    '富士山': 'ふじさん', '綺麗': 'きれい', '公園': 'こうえん',
+    'ゴミ': 'ごみ', '塵': 'ごみ', '一つ': 'ひとつ', '二つ': 'ふたつ'
+  };
+
+  // App State
+  let currentStep = 0;
+  let currentMode = 'voice'; // 'voice' or 'puzzle'
+  let currentTarget = 'b1'; // 'b1' or 'b2'
+  let userPuzzleAnswer = [];
+  let startTime = null;
+  let recognition = null;
+  let isListening = false;
+
+  // Initialize Speech Recognition cleanly
+  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onresult = function(event) {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      document.getElementById('speech-result').innerText = transcript;
+      if (event.results[0].isFinal) {
+        stopListening();
+        checkVoiceAnswer(transcript);
+      }
+    };
+
+    recognition.onerror = function(event) {
+      stopListening();
+      document.getElementById('speech-result').innerText = '음성을 인식하지 못했습니다. 다시 시도해 주세요.';
+    };
+
+    recognition.onend = function() {
+      stopListening();
+    };
+  }
+
+  function requestMicAndStart(mode) {
+    if (recognition) {
+      try {
+        recognition.start();
+        setTimeout(() => recognition.stop(), 500);
+      } catch(e) {}
+    }
+    startPractice(mode);
+  }
+
+  function startPractice(mode) {
+    currentMode = mode;
+    currentStep = 0;
+    startTime = new Date();
+    
+    document.getElementById('start-screen').classList.remove('active');
+    document.getElementById('practice-screen').classList.add('active');
+
+    if (currentMode === 'voice') {
+      document.getElementById('voice-area').style.display = 'block';
+      document.getElementById('puzzle-area').style.display = 'none';
+    } else {
+      document.getElementById('voice-area').style.display = 'none';
+      document.getElementById('puzzle-area').style.display = 'block';
+    }
+
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = questions[currentStep];
+    document.getElementById('step-info').innerText = (currentStep + 1) + " / " + questions.length;
+    document.getElementById('progress-fill').style.width = ((currentStep + 1) / questions.length * 100) + "%";
+    document.getElementById('q-text').innerText = q.q_display;
+
+    // Reset UI
+    document.getElementById('feedback-msg').className = 'feedback';
+    document.getElementById('feedback-msg').innerText = '';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('answer-reveal').classList.remove('show');
+    document.getElementById('speech-result').innerText = '말씀을 기다리는 중...';
+
+    selectTarget('b1');
+  }
+
+  function selectTarget(target) {
+    currentTarget = target;
+    const btnB1 = document.getElementById('btn-choice-b1');
+    const btnB2 = document.getElementById('btn-choice-b2');
+
+    if (target === 'b1') {
+      btnB1.className = 'choice-btn active-b1';
+      btnB2.className = 'choice-btn';
+    } else {
+      btnB1.className = 'choice-btn';
+      btnB2.className = 'choice-btn active-b2';
+    }
+
+    if (currentMode === 'puzzle') {
+      setupPuzzlePool();
+    }
+  }
+
+  function playQuestionTTS() {
+    const q = questions[currentStep];
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(q.q_tts);
+    u.lang = 'ja-JP';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  }
+
+  // Voice Recognition Logic
+  function toggleListening() {
+    if (!recognition) {
+      document.getElementById('speech-result').innerText = '이 브라우저는 음성 인식을 지원하지 않습니다. [직접 입력하기] 모드를 권장합니다.';
+      return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+      stopListening();
+    } else {
+      try {
+        recognition.start();
+        isListening = true;
+        document.getElementById('mic-btn').classList.add('listening');
+        document.getElementById('mic-status').innerText = '듣고 있습니다... 말씀하세요!';
+        document.getElementById('speech-result').innerText = '듣고 있습니다...';
+      } catch (e) {
+        stopListening();
+      }
+    }
+  }
+
+  function stopListening() {
+    isListening = false;
+    document.getElementById('mic-btn').classList.remove('listening');
+    document.getElementById('mic-status').innerText = '버튼을 누르고 일본어로 대답하세요';
+  }
+
+  function normalizeJapanese(text) {
+    let result = text.replace(/[\s\.\,\!\?。、]/g, '');
+    for (let k in kanjiMap) {
+      result = result.split(k).join(kanjiMap[k]);
+    }
+    return result;
+  }
+
+  function checkVoiceAnswer(spokenText) {
+    const q = questions[currentStep];
+    const targetRaw = currentTarget === 'b1' ? q.b1_raw : q.b2_raw;
+    
+    const normSpoken = normalizeJapanese(spokenText);
+    const normTarget = normalizeJapanese(targetRaw);
+
+    const isCorrect = normSpoken.includes(normTarget) || normTarget.includes(normSpoken);
+
+    showFeedback(isCorrect);
+  }
+
+  // Puzzle Mode Logic
+  function setupPuzzlePool() {
+    const q = questions[currentStep];
+    const correctChips = currentTarget === 'b1' ? q.puzzle_b1 : q.puzzle_b2;
+    const distractors = currentTarget === 'b1' ? q.distractors_b1 : q.distractors_b2;
+
+    const allChips = [...correctChips, ...distractors].sort(() => Math.random() - 0.5);
+    
+    userPuzzleAnswer = [];
+    renderPuzzleWorkspace();
+
+    const pool = document.getElementById('puzzle-pool');
+    pool.innerHTML = '';
+    allChips.forEach((word, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerText = word;
+      chip.onclick = () => selectPuzzleChip(word, chip);
+      pool.appendChild(chip);
+    });
+  }
+
+  function selectPuzzleChip(word, element) {
+    if (element.classList.contains('chip-selected')) return;
+    element.classList.add('chip-selected');
+    userPuzzleAnswer.push({ word: word, element: element });
+    renderPuzzleWorkspace();
+  }
+
+  function renderPuzzleWorkspace() {
+    const ws = document.getElementById('puzzle-workspace');
+    ws.innerHTML = '';
+    if (userPuzzleAnswer.length === 0) {
+      ws.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">단어를 선택해 주세요</span>';
+      return;
+    }
+
+    userPuzzleAnswer.forEach((item, index) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.style.background = '#059669';
+      chip.style.color = 'white';
+      chip.innerText = item.word + ' ✕';
+      chip.onclick = () => {
+        item.element.classList.remove('chip-selected');
+        userPuzzleAnswer.splice(index, 1);
+        renderPuzzleWorkspace();
+      };
+      ws.appendChild(chip);
+    });
+  }
+
+  function checkPuzzleAnswer() {
+    const q = questions[currentStep];
+    const correctChips = currentTarget === 'b1' ? q.puzzle_b1 : q.puzzle_b2;
+    
+    const userString = userPuzzleAnswer.map(i => i.word).join('');
+    const targetString = correctChips.join('');
+
+    showFeedback(userString === targetString);
+  }
+
+  function showFeedback(isCorrect) {
+    const fb = document.getElementById('feedback-msg');
+    const q = questions[currentStep];
+    const targetText = currentTarget === 'b1' ? q.b1_text : q.b2_text;
+
+    document.getElementById('answer-reveal-text').innerText = targetText;
+    document.getElementById('answer-reveal').classList.add('show');
+
+    if (isCorrect) {
+      fb.className = 'feedback correct';
+      fb.innerText = '⭕ 참 잘했습니다! 정확한 표현입니다.';
+    } else {
+      fb.className = 'feedback wrong';
+      fb.innerText = '❌ 아쉬워요! 완성된 정답 문장을 확인해 보세요.';
+    }
+
+    // TTS speak the target answer
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(targetText);
+    u.lang = 'ja-JP';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+
+    document.getElementById('next-btn').style.display = 'block';
+  }
+
+  function nextQuestion() {
+    currentStep++;
+    if (currentStep < questions.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    document.getElementById('practice-screen').classList.remove('active');
+    document.getElementById('result-screen').classList.add('active');
+
+    const duration = Math.round((new Date() - startTime) / 1000);
+    const mins = Math.floor(duration / 60);
+    const secs = duration % 60;
+    
+    let timeStr = secs + "초";
+    if (mins > 0) timeStr = mins + "분 " + secs + "초";
+
+    document.getElementById('total-time-text').innerText = timeStr;
+  }
+
+  function resetToStart() {
+    document.getElementById('result-screen').classList.remove('active');
+    document.getElementById('start-screen').classList.add('active');
+  }
+</script>
+</body>
+</html>
+```eof
