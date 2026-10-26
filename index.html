@@ -49,6 +49,8 @@
 </head>
 <body>
 <div class="container">
+
+  <!-- 1. 시작 화면 -->
   <div class="screen active" id="sc-start">
     <h1>일본어 회화 연습을 시작할까요?</h1>
     <p class="desc">질문(A)을 듣고 직접 대답해보는 회화 학습입니다.<br>정답 텍스트가 사전 노출되지 않으니 기억한 대답을 완성해보세요!</p>
@@ -56,76 +58,344 @@
     <button class="btn btn-primary" onclick="initApp('voice')">🎙️ 음성 말하기로 시작하기</button>
     <button class="btn btn-secondary" onclick="initApp('puzzle')">⌨️ 직접 입력하기(단어 조합)로 시작하기</button>
   </div>
+
+  <!-- 2. 학습 화면 -->
   <div class="screen" id="sc-practice">
     <div class="header">
       <span id="step-lbl">1 / 6</span>
-      <button class="btn-home-small" onclick="confirmGoHome()">🏠 첫 화면으로</button>
+      <button class="btn-home-small" onclick="goHome()">🏠 첫 화면으로</button>
     </div>
     <div class="progress"><div class="progress-fill" id="prog-fill"></div></div>
+
     <div class="card" style="margin-top: 10px;">
       <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">질문 (A)를 듣고 답해보세요</div>
-      <div class="q-text" id="q-text">1. あの おんせんは どうですか。</div>
+      <div class="q-text" id="q-text"></div>
       <button class="btn-audio" onclick="playQuestionTTS()">🔊 질문 다시 듣기</button>
     </div>
+
     <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">어떤 대답을 만드시겠습니까?</div>
     <div class="target-choice">
       <button class="choice-btn active-b1" id="btn-b1" onclick="setTarget('b1')">B1 대답 (긍정)</button>
       <button class="choice-btn" id="btn-b2" onclick="setTarget('b2')">B2 대답 (부정)</button>
     </div>
+
     <div id="box-voice" class="voice-box">
       <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
       <div style="font-size:0.8rem; color:#64748b;" id="mic-status">버튼을 누르고 일본어로 말씀하세요</div>
       <div class="res-box" id="voice-res">말씀을 기다리는 중...</div>
     </div>
+
     <div id="box-puzzle" style="display:none;">
       <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">단어를 터치하여 순서대로 조합하세요:</div>
       <div class="puzzle-workspace" id="p-ws"></div>
       <div class="puzzle-pool" id="p-pool"></div>
       <button class="btn btn-primary" id="btn-submit-puzzle" onclick="checkPuzzle()">정답 제출하기</button>
     </div>
+
     <div class="ans-reveal" id="ans-reveal">💡 정답: <span id="ans-reveal-txt"></span></div>
     <div class="feedback" id="fb-msg"></div>
     <button class="btn btn-secondary" id="btn-next" style="display:none; margin-top:10px;" onclick="nextStep()">다음 문제로 ➡️</button>
   </div>
+
+  <!-- 3. 결과 화면 -->
   <div class="screen" id="sc-result">
     <h1>🎉 회화 연습 완료!</h1>
     <p class="desc">학습 결과를 확인하세요.</p>
-    <div class="report"><div class="report-title">🎯 최종 성적</div><div class="score-badge" id="score-txt">60 / 60 점</div></div>
-    <div class="report"><div class="report-title">⏱️ 총 학습 소요 시간</div><div id="time-txt" style="font-size:1.1rem; font-weight:bold;">0초</div></div>
-    <div class="report"><div class="report-title">👍 잘했던 점</div><div style="font-size:0.85rem; color:#16a34a;">질문 청해 및 발화 암기력이 우수합니다! 정확한 문형을 말하는 연습을 완료했습니다.</div></div>
-    <div class="report"><div class="report-title">💡 학습 피드백</div><div style="font-size:0.85rem; color:#b45309;">na-형용사의 부정 정중형은 「~じゃ ありません」을 사용합니다. i-형용사 어미인 「~っく」나 「~くありません」과의 혼동에 주의하세요.</div></div>
+    <div class="report">
+      <div class="report-title">🎯 최종 성적</div>
+      <div class="score-badge" id="score-txt">0 / 60 점</div>
+    </div>
+    <div class="report">
+      <div class="report-title">⏱️ 총 학습 소요 시간</div>
+      <div id="time-txt" style="font-size:1.1rem; font-weight:bold;">0초</div>
+    </div>
+    <div class="report">
+      <div class="report-title">👍 잘했던 점</div>
+      <div style="font-size:0.85rem; color:#16a34a;">질문 청해 및 발화 암기력이 우수합니다! 정확한 문형을 말하는 연습을 완료했습니다.</div>
+    </div>
+    <div class="report">
+      <div class="report-title">💡 학습 피드백</div>
+      <div style="font-size:0.85rem; color:#b45309;">na-형용사의 부정 정중형은 「~じゃ ありません」을 사용합니다. i-형용사 어미와의 혼동에 주의하세요.</div>
+    </div>
     <button class="btn btn-primary" onclick="goHome()">🔄 첫 화면으로 돌아가기</button>
   </div>
+
 </div>
+
 <script>
-  const DATA = [
-    { q: "1. あの おんせんは どうですか。", q_tts: "あの おんせんは どうですか。", b1_raw: "とてもゆうめいです", b2_raw: "あまりゆうめいじゃありません", b1_txt: "とても ゆうめいです。", b2_txt: "あまり ゆうめいじゃ ありません。", p_b1: ["とても", "ゆうめい", "です"], p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"], d_b1: ["あまり", "ゆうめいっく"], d_b2: ["とても", "くありません"] },
-    { q: "2. その スマホは どうですか。", q_tts: "その スマホは どうですか。", b1_raw: "とてもべんりです", b2_raw: "あまりべんりじゃありません", b1_txt: "とても べんりです。", b2_txt: "あまり べんりじゃ ありません。", p_b1: ["とても", "べんり", "です"], p_b2: ["あまり", "べんり", "じゃ", "ありません"], d_b1: ["あまり", "べんりっく"], d_b2: ["```javascript
-      d_b1: ["あまり", "べんりっく"], d_b2: ["とても", "ありませんでした"] },
+  var DATA = [
+    { q: "1. あの おんせんは どうですか。", q_tts: "あの おんせんは どうですか。", b1_raw: "とてもゆうめいです", b2_raw: "あまりゆうめいじゃありません", b1_txt: "とても ゆうめいです。", b2_txt: "あまり ゆうめいじゃ ありません。", p_b1: ["とても", "ゆうめい", "です"], p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"], d_b1: ["あまり", "ゆうめいっく"], d_b2: ["```javascript
+      d_b1: ["あまり", "ゆうめいっく"], d_b2: ["とても", "くありません"] },
+    { q: "2. その スマホは どうですか。", q_tts: "その スマホは どうですか。", b1_raw: "とてもべんりです", b2_raw: "あまりべんりじゃありません", b1_txt: "とても べんりです。", b2_txt: "あまり べんりじゃ ありません。", p_b1: ["とても", "べんり", "です"], p_b2: ["あまり", "べんり", "じゃ", "ありません"], d_b1: ["あまり", "べんりっく"], d_b2: ["とても", "ありませんでした"] },
     { q: "3. この 町は どうですか。", q_tts: "この まちは どうですか。", b1_raw: "とてもにぎやかです", b2_raw: "あまりにぎやかじゃありません", b1_txt: "とても にぎやかです。", b2_txt: "あまり にぎやかじゃ ありません。", p_b1: ["とても", "にぎやか", "です"], p_b2: ["あまり", "にぎやか", "じゃ", "ありません"], d_b1: ["あまり", "しずか"], d_b2: ["とても", "にぎやかっく"] },
     { q: "4. あの びょういんは どうですか。", q_tts: "あの びょういんは どうですか。", b1_raw: "とてもしんせつです", b2_raw: "あまりしんせつじゃありません", b1_txt: "とても しんせつです。", b2_txt: "あまり しんせつじゃ ありません。", p_b1: ["とても", "しんせつ", "です"], p_b2: ["あまり", "しんせつ", "じゃ", "ありません"], d_b1: ["あまり", "しんせっく"], d_b2: ["とても", "くありません"] },
     { q: "5. あれが ふじさんです。", q_tts: "あれが ふじさんです。", b1_raw: "きれいですね", b2_raw: "あまりきれいじゃありません", b1_txt: "きれいですね。", b2_txt: "あまり きれいじゃ ありません。", p_b1: ["きれい", "ですね"], p_b2: ["あまり", "きれい", "じゃ", "ありません"], d_b1: ["とても", "きれいっく"], d_b2: ["あまり", "くありません"] },
     { q: "6. この こうえん、きれいだね。", q_tts: "この こうえん きれいだね", b1_raw: "うんごみひとつないね", b2_raw: "あまりきれいじゃないね", b1_txt: "うん。ごみ ひとつ ないね。", b2_txt: "あまり きれいじゃ ないね。", p_b1: ["うん。", "ごみ", "ひとつ", "ないね"], p_b2: ["あまり", "きれい", "じゃ", "ないね"], d_b1: ["ふたつ", "ありません"], d_b2: ["とても", "ありませんでした"] }
   ];
-  const KANJI_MAP = { '甘利': 'あまり', '余り': 'あまり', '町': 'まち', 'ちょう': 'まち', '有名': 'ゆうめい', '便利': 'べんり', '病院': 'びょういん', '親切': 'しんせつ', '富士山': 'ふじさん', '綺麗': 'きれい', '公園': 'こうえん', 'ゴミ': 'ごみ', '一つ': 'ひとつ' };
-  let idx = 0, mode = 'voice', target = 'b1', puzzleAns = [], startTime = null, rec = null, isListening = false, score = 0, isEvaluated = false;
-  function initApp(selectedMode) { mode = selectedMode; idx = 0; score = 0; startTime = new Date(); document.getElementById('sc-start').classList.remove('active'); document.getElementById('sc-practice').classList.add('active'); if (mode === 'voice') { document.getElementById('box-voice').style.display = 'block'; document.getElementById('box-puzzle').style.display = 'none'; setupSpeech(); } else { document.getElementById('box-voice').style.display = 'none'; document.getElementById('box-puzzle').style.display = 'block'; } renderStep(); }
-  function renderStep() { isEvaluated = false; const item = DATA[idx]; document.getElementById('step-lbl').innerText = `${idx + 1} / ${DATA.length}`; document.getElementById('prog-fill').style.width = `${((idx + 1) / DATA.length) * 100}%`; document.getElementById('q-text').innerText = item.q; document.getElementById('fb-msg').className = 'feedback'; document.getElementById('fb-msg').style.display = 'none'; document.getElementById('btn-next').style.display = 'none'; document.getElementById('ans-reveal').classList.remove('show'); document.getElementById('voice-res').innerText = '말씀을 기다리는 중...'; if (mode === 'puzzle') { document.getElementById('btn-submit-puzzle').style.display = 'block'; } setTarget('b1'); setTimeout(() => playQuestionTTS(), 300); }
-  function setTarget(t) { if (isEvaluated) return; target = t; document.getElementById('btn-b1').className = t === 'b1' ? 'choice-btn active-b1' : 'choice-btn'; document.getElementById('btn-b2').className = t === 'b2' ? 'choice-btn active-b2' : 'choice-btn'; if (mode === 'puzzle') setupPuzzle(); }
-  function playQuestionTTS() { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(DATA[idx].q_tts); u.lang = 'ja-JP'; u.rate = 0.9; window.speechSynthesis.speak(u); }
-  function setupSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; rec = new Speech(); rec.lang = 'ja-JP'; rec.interimResults = false; rec.onstart = () => { isListening = true; document.getElementById('mic-btn').classList.add('listening'); document.getElementById('mic-status').innerText = '듣고 있습니다...'; }; rec.onend = () => { isListening = false; document.getElementById('mic-btn').classList.remove('listening'); document.getElementById('mic-status').innerText = '버튼을 누르고 일본어로 말씀하세요'; }; rec.onresult = (e) => { if (isEvaluated) return; const raw = e.results[0][0].transcript; const norm = convertKanji(raw); document.getElementById('voice-res').innerText = norm; evaluateAnswer(norm); }; }
-  function toggleMic() { if (isEvaluated) return; if (!rec) { alert('이 브라우저는 음성 인식을 지원하지 않습니다. 단어 조합 모드를 이용해 주세요.'); return; } if (isListening) rec.stop(); else rec.start(); }
-  function convertKanji(str) { let res = str.replace(/[\s\.\,\!\?。、]/g, ''); for (let k in KANJI_MAP) { res = res.split(k).join(KANJI_MAP[k]); } return res; }
-  function setupPuzzle() { const item = DATA[idx]; const correctArr = target === 'b1' ? item.p_b1 : item.p_b2; const distArr = target === 'b1' ? item.d_b1 : item.d_b2; const pool = [...correctArr, ...distArr].sort(() => Math.random() - 0.5); puzzleAns = []; renderPuzzleWorkspace(); const poolEl = document.getElementById('p-pool'); poolEl.innerHTML = ''; pool.forEach((word) => { const chip = document.createElement('div'); chip.className = 'chip'; chip.innerText = word; chip.onclick = () => selectChip(word, chip); poolEl.appendChild(chip); }); }
-  function selectChip(word, el) { if (isEvaluated || el.classList.contains('selected')) return; el.classList.add('selected'); puzzleAns.push({ word, el }); renderPuzzleWorkspace(); }
-  function renderPuzzleWorkspace() { const ws = document.getElementById('p-ws'); ws.innerHTML = ''; if (puzzleAns.length === 0) { ws.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">단어를 선택해 주세요</span>'; return; } puzzleAns.forEach((item, i) => { const chip = document.createElement('div'); chip.className = 'chip'; chip.style.background = '#4f46e5'; chip.style.color = '#fff'; chip.innerText = `${item.word} ✕`; chip.onclick = () => { if (isEvaluated) return; item.el.classList.remove('selected'); puzzleAns.splice(i, 1); renderPuzzleWorkspace(); }; ws.appendChild(chip); }); }
-  function checkPuzzle() { if (isEvaluated) return; if (puzzleAns.length === 0) { alert('단어를 조합한 후 제출해 주세요.'); return; } const userStr = puzzleAns.map(i => i.word).join(''); evaluateAnswer(userStr); }
-  function evaluateAnswer(userStr) { isEvaluated = true; if (mode === 'voice') { document.getElementById('voice-res').innerText = '⏳ 답변 분석 중... (' + userStr + ')'; } else { document.getElementById('btn-submit-puzzle').style.display = 'none'; } setTimeout(() => { const item = DATA[idx]; const targetRaw = target === 'b1' ? item.b1_raw : item.b2_raw; const uNorm = convertKanji(userStr).replace(/では/g, "じゃ"); const tNorm = convertKanji(targetRaw).replace(/では/g, "じゃ"); const isCorrect = uNorm.includes(tNorm) || tNorm.includes(uNorm); if (isCorrect) score += 10; showResult(isCorrect); }, 1200); }
-  function showResult(isCorrect) { const fb = document.getElementById('fb-msg'); const item = DATA[idx]; const correctTxt = target === 'b1' ? item.b1_txt : item.b2_txt; document.getElementById('ans-reveal-txt').innerText = correctTxt; document.getElementById('ans-reveal').classList.add('show'); fb.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`; fb.innerText = isCorrect ? '⭕ 참 잘했습니다! (+10점)' : '❌ 아쉬워요! 정답 문장을 확인해 보세요.'; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(correctTxt); u.lang = 'ja-JP'; u.rate = 0.9; window.speechSynthesis.speak(u); document.getElementById('btn-next').style.display = 'block'; }
-  function nextStep() { idx++; if (idx < DATA.length) { renderStep(); } else { finishApp(); } }
-  function finishApp() { document.getElementById('sc-practice').classList.remove('active'); document.getElementById('sc-result').classList.add('active'); const duration = Math.round((new Date() - startTime) / 1000); document.getElementById('time-txt').innerText = `${duration} 초`; document.getElementById('score-txt').innerText = `${score} / 60 점`; }
-  function confirmGoHome() { if (confirm('첫 화면으로 이동하시겠습니까? (현재 진행 상황은 초기화됩니다)')) { goHome(); } }
-  function goHome() { window.speechSynthesis.cancel(); if (rec && isListening) rec.stop(); document.getElementById('sc-practice').classList.remove('active'); document.getElementById('sc-result').classList.remove('active'); document.getElementById('sc-start').classList.add('active'); }
+
+  var KANJI_MAP = {
+    '甘利': 'あまり', '余り': 'あまり', '町': 'まち', 'ちょう': 'まち',
+    '有名': 'ゆうめい', '便利': 'べんり', '病院': 'びょういん',
+    '親切': 'しんせつ', '富士山': 'ふじさん', '綺麗': 'きれい',
+    '公園': 'こうえん', 'ゴミ': 'ごみ', '一つ': 'ひとつ'
+  };
+
+  var idx = 0;
+  var mode = 'voice';
+  var target = 'b1';
+  var puzzleAns = [];
+  var startTime = null;
+  var rec = null;
+  var isListening = false;
+  var score = 0;
+  var isEvaluated = false;
+
+  function initApp(selectedMode) {
+    mode = selectedMode;
+    idx = 0;
+    score = 0;
+    startTime = new Date();
+    
+    document.getElementById('sc-start').classList.remove('active');
+    document.getElementById('sc-result').classList.remove('active');
+    document.getElementById('sc-practice').classList.add('active');
+    
+    if (mode === 'voice') {
+      document.getElementById('box-voice').style.display = 'block';
+      document.getElementById('box-puzzle').style.display = 'none';
+      setupSpeech();
+    } else {
+      document.getElementById('box-voice').style.display = 'none';
+      document.getElementById('box-puzzle').style.display = 'block';
+    }
+    
+    renderStep();
+  }
+
+  function renderStep() {
+    isEvaluated = false;
+    var item = DATA[idx];
+    
+    document.getElementById('step-lbl').innerText = (idx + 1) + ' / ' + DATA.length;
+    document.getElementById('prog-fill').style.width = (((idx + 1) / DATA.length) * 100) + '%';
+    document.getElementById('q-text').innerText = item.q;
+    
+    document.getElementById('fb-msg').className = 'feedback';
+    document.getElementById('fb-msg').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('ans-reveal').classList.remove('show');
+    document.getElementById('voice-res').innerText = '말씀을 기다리는 중...';
+    
+    if (mode === 'puzzle') {
+      document.getElementById('btn-submit-puzzle').style.display = 'block';
+    }
+    
+    setTarget('b1');
+    setTimeout(playQuestionTTS, 300);
+  }
+
+  function setTarget(t) {
+    if (isEvaluated) return;
+    target = t;
+    document.getElementById('btn-b1').className = t === 'b1' ? 'choice-btn active-b1' : 'choice-btn';
+    document.getElementById('btn-b2').className = t === 'b2' ? 'choice-btn active-b2' : 'choice-btn';
+    
+    if (mode === 'puzzle') {
+      setupPuzzle();
+    }
+  }
+
+  function playQuestionTTS() {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(DATA[idx].q_tts);
+    u.lang = 'ja-JP';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  }
+
+  function setupSpeech() {
+    var Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Speech) return;
+    
+    rec = new Speech();
+    rec.lang = 'ja-JP';
+    rec.interimResults = false;
+    
+    rec.onstart = function() {
+      isListening = true;
+      document.getElementById('mic-btn').classList.add('listening');
+      document.getElementById('mic-status').innerText = '듣고 있습니다...';
+    };
+    
+    rec.onend = function() {
+      isListening = false;
+      document.getElementById('mic-btn').classList.remove('listening');
+      document.getElementById('mic-status').innerText = '버튼을 누르고 일본어로 말씀하세요';
+    };
+    
+    rec.onresult = function(e) {
+      if (isEvaluated) return;
+      var raw = e.results[0][0].transcript;
+      var norm = convertKanji(raw);
+      document.getElementById('voice-res').innerText = norm;
+      evaluateAnswer(norm);
+    };
+  }
+
+  function toggleMic() {
+    if (isEvaluated) return;
+    if (!rec) {
+      alert('이 브라우저는 음성 인식을 지원하지 않습니다. 단어 조합 모드를 이용해 주세요.');
+      return;
+    }
+    if (isListening) {
+      rec.stop();
+    } else {
+      rec.start();
+    }
+  }
+
+  function convertKanji(str) {
+    var res = str.replace(/[\s\.\,\!\?。、]/g, '');
+    for (var k in KANJI_MAP) {
+      res = res.split(k).join(KANJI_MAP[k]);
+    }
+    return res;
+  }
+
+  function setupPuzzle() {
+    var item = DATA[idx];
+    var correctArr = target === 'b1' ? item.p_b1 : item.p_b2;
+    var distArr = target === 'b1' ? item.d_b1 : item.d_b2;
+    
+    var pool = correctArr.concat(distArr).sort(function() { return Math.random() - 0.5; });
+    puzzleAns = [];
+    renderPuzzleWorkspace();
+    
+    var poolEl = document.getElementById('p-pool');
+    poolEl.innerHTML = '';
+    
+    pool.forEach(function(word) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerText = word;
+      chip.onclick = function() { selectChip(word, chip); };
+      poolEl.appendChild(chip);
+    });
+  }
+
+  function selectChip(word, el) {
+    if (isEvaluated || el.classList.contains('selected')) return;
+    el.classList.add('selected');
+    puzzleAns.push({ word: word, el: el });
+    renderPuzzleWorkspace();
+  }
+
+  function renderPuzzleWorkspace() {
+    var ws = document.getElementById('p-ws');
+    ws.innerHTML = '';
+    
+    if (puzzleAns.length === 0) {
+      ws.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">단어를 선택해 주세요</span>';
+      return;
+    }
+    
+    puzzleAns.forEach(function(item, i) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.style.background = '#4f46e5';
+      chip.style.color = '#fff';
+      chip.innerText = item.word + ' ✕';
+      chip.onclick = function() {
+        if (isEvaluated) return;
+        item.el.classList.remove('selected');
+        puzzleAns.splice(i, 1);
+        renderPuzzleWorkspace();
+      };
+      ws.appendChild(chip);
+    });
+  }
+
+  function checkPuzzle() {
+    if (isEvaluated) return;
+    if (puzzleAns.length === 0) {
+      alert('단어를 조합한 후 제출해 주세요.');
+      return;
+    }
+    var userStr = puzzleAns.map(function(i) { return i.word; }).join('');
+    evaluateAnswer(userStr);
+  }
+
+  function evaluateAnswer(userStr) {
+    isEvaluated = true;
+    
+    if (mode === 'voice') {
+      document.getElementById('voice-res').innerText = '⏳ 답변 분석 중... (' + userStr + ')';
+    } else {
+      document.getElementById('btn-submit-puzzle').style.display = 'none';
+    }
+    
+    setTimeout(function() {
+      var item = DATA[idx];
+      var targetRaw = target === 'b1' ? item.b1_raw : item.b2_raw;
+      
+      var uNorm = convertKanji(userStr).replace(/では/g, "じゃ");
+      var tNorm = convertKanji(targetRaw).replace(/では/g, "じゃ");
+      
+      var isCorrect = uNorm.indexOf(tNorm) !== -1 || tNorm.indexOf(uNorm) !== -1;
+      if (isCorrect) {
+        score += 10;
+      }
+      showResult(isCorrect);
+    }, 1200);
+  }
+
+  function showResult(isCorrect) {
+    var fb = document.getElementById('fb-msg');
+    var item = DATA[idx];
+    var correctTxt = target === 'b1' ? item.b1_txt : item.b2_txt;
+    
+    document.getElementById('ans-reveal-txt').innerText = correctTxt;
+    document.getElementById('ans-reveal').classList.add('show');
+    
+    fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+    fb.innerText = isCorrect ? '⭕ 참 잘했습니다! (+10점)' : '❌ 아쉬워요! 정답 문장을 확인해 보세요.';
+    
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(correctTxt);
+    u.lang = 'ja-JP';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+    
+    document.getElementById('btn-next').style.display = 'block';
+  }
+
+  function nextStep() {
+    idx++;
+    if (idx < DATA.length) {
+      renderStep();
+    } else {
+      finishApp();
+    }
+  }
+
+  function finishApp() {
+    document.getElementById('sc-practice').classList.remove('active');
+    document.getElementById('sc-result').classList.add('active');
+    
+    var duration = Math.round((new Date() - startTime) / 1000);
+    document.getElementById('time-txt').innerText = duration + ' 초';
+    document.getElementById('score-txt').innerText = score + ' / 60 점';
+  }
+
+  function goHome() {
+    window.speechSynthesis.cancel();
+    if (rec && isListening) rec.stop();
+    
+    document.getElementById('sc-practice').classList.remove('active');
+    document.getElementById('sc-result').classList.remove('active');
+    document.getElementById('sc-start').classList.add('active');
+  }
 </script>
 </body>
 </html>
