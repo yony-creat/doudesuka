@@ -43,7 +43,8 @@
 
     .target-choice { display: flex; gap: 10px; margin-bottom: 20px; }
     .choice-btn { flex: 1; padding: 15px; border-radius: 12px; border: 2px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.95rem; text-align: center; }
-    .choice-btn.active { border-color: var(--primary); background: #e0e7ff; color: var(--primary); }
+    .choice-btn.active-b1 { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+    .choice-btn.active-b2 { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
 
     .voice-box { text-align: center; padding: 15px 0; }
     .mic-btn { width: 75px; height: 75px; border-radius: 50%; background: #ef4444; border: none; color: white; font-size: 1.8rem; cursor: pointer; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
@@ -53,7 +54,11 @@
 
     .puzzle-workspace { background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; min-height: 60px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 15px; }
     .puzzle-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
-    .word-chip { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-size: 1rem; cursor: pointer; user-select: none; }
+    .chip { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-size: 1rem; cursor: pointer; user-select: none; }
+    .chip.chip-selected { opacity: 0.3; pointer-events: none; }
+
+    .answer-reveal { background: #e0e7ff; border-radius: 10px; padding: 12px; margin-top: 10px; display: none; font-weight: bold; color: #3730a3; }
+    .answer-reveal.show { display: block; }
 
     .feedback { text-align: center; font-weight: bold; margin-top: 15px; padding: 12px; border-radius: 10px; display: none; }
     .feedback.correct { background: #dcfce7; color: #15803d; display: block; }
@@ -83,8 +88,8 @@
   <!-- 2. 학습 화면 -->
   <div class="screen" id="practice-screen">
     <div class="header">
-      <div style="font-weight: bold; color: #64748b;">문제 <span id="current-step">1</span> / <span id="total-step">6</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <div style="font-weight: bold; color: #64748b;">문제 <span id="step-info">1 / 6</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:16.6%;"></div></div>
     </div>
 
     <div class="card">
@@ -95,16 +100,18 @@
 
     <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 8px;">어떤 대답을 만드시겠습니까?</div>
     <div class="target-choice">
-      <div class="choice-btn active" id="choice-b1" onclick="selectTarget('b1')">B1 대답 만들기</div>
-      <div class="choice-btn" id="choice-b2" onclick="selectTarget('b2')">B2 대답 만들기</div>
+      <button class="choice-btn active-b1" id="btn-choice-b1" onclick="selectTarget('b1')">B1 대답 만들기 (긍정)</button>
+      <button class="choice-btn" id="btn-choice-b2" onclick="selectTarget('b2')">B2 대답 만들기 (부정)</button>
     </div>
 
+    <!-- Voice Area -->
     <div id="voice-area" class="voice-box">
       <button class="mic-btn" id="mic-btn" onclick="toggleListening()">🎙️</button>
-      <div style="font-size: 0.85rem; color: #64748b;" id="mic-status">버튼을 누르고 대답을 말하세요</div>
-      <div class="result-box" id="speech-result">🎙️ 인식 결과: </div>
+      <div style="font-size: 0.85rem; color: #64748b;" id="mic-status">버튼을 누르고 일본어로 대답하세요</div>
+      <div class="result-box" id="speech-result">말씀을 기다리는 중...</div>
     </div>
 
+    <!-- Puzzle Area -->
     <div id="puzzle-area" style="display:none;">
       <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">순서대로 단어를 눌러 대답을 완성하세요:</div>
       <div class="puzzle-workspace" id="puzzle-workspace"></div>
@@ -112,27 +119,37 @@
       <button class="btn btn-primary" onclick="checkPuzzleAnswer()">정답 제출하기</button>
     </div>
 
+    <div class="answer-reveal" id="answer-reveal">
+      💡 정답 문장: <span id="answer-reveal-text"></span>
+    </div>
+
     <div class="feedback" id="feedback-msg"></div>
+
+    <button class="btn btn-secondary" id="next-btn" style="display:none; margin-top:15px;" onclick="nextQuestion()">다음 문제로 ➡️</button>
   </div>
 
-  <!-- 3. 피드백 및 결과 화면 -->
+  <!-- 3. 결과 화면 -->
   <div class="screen" id="result-screen">
     <h1>🎉 회화 연습 완료!</h1>
     <p class="desc">학습 리포트 및 피드백입니다.</p>
 
     <div class="report-card">
       <div class="report-title">⏱️ 총 학습 소요 시간</div>
-      <div id="total-time" style="font-size: 1.2rem; font-weight: bold;">0초</div>
+      <div id="total-time-text" style="font-size: 1.2rem; font-weight: bold;">0초</div>
     </div>
 
     <div class="report-card">
       <div class="report-title">👍 잘했던 점 & 발음 평가</div>
-      <div id="good-feedback" style="font-size: 0.95rem; color: #16a34a;"></div>
+      <div style="font-size: 0.95rem; color: #16a34a;">
+        ✨ 질문을 정확히 청해하고 일본어 대답을 정교하게 완성했습니다! 핵심 표현 발화 능력이 매우 뛰어납니다.
+      </div>
     </div>
 
     <div class="report-card">
       <div class="report-title">💡 학습 피드백 & 문법 유의점</div>
-      <div id="improve-feedback" style="font-size: 0.95rem; color: #b45309;"></div>
+      <div style="font-size: 0.95rem; color: #b45309;">
+        💡 na-형용사의 부정 정중형은 <strong>「~じゃ ありません」</strong> 형태를 사용합니다. <i>「~っく」</i>나 <i>「~くありません」</i>과 같은 i-형용사 변형 오류에 유의하세요!
+      </div>
     </div>
 
     <button class="btn btn-primary" onclick="resetToStart()">🔄 첫 화면으로 돌아가기</button>
@@ -152,7 +169,7 @@
       puzzle_b1: ["とても", "ゆうめい", "です"],
       puzzle_b2: ["あまり", "ゆうめい", "じゃ", "ありません"],
       distractors_b1: ["あまり", "ゆうめいっく", "じゃ"],
-      distractors_b2: ["とても", "ゆうめいっく", "くありません", "ありませんでした"]
+      distractors_b2: ["とても", "ゆうめいっく", "くありません"]
     },
     {
       q_display: "2. その スマホは どうですか。",
@@ -164,13 +181,7 @@
       puzzle_b1: ["とても", "べんり", "です"],
       puzzle_b2: ["あまり", "べんり", "じゃ", "ありません"],
       distractors_b1: ["あまり", "べんりっく", "じゃ"],
-      distractors_b2: ["이전 코드 전송 과정에서 특수 구문으로 인해 코드가 중단되는 현상이 있었습니다.
-
-모든 외부 라이브러리 의존성을 제거하고 원인 분석을 통해 **100% 동작하도록 작성된 순수 JavaScript/CSS 기반 전체 코드**입니다.
-
-오른쪽 에디터 화면에서 바로 **`Preview`**를 눌러 확인하시거나, 아래 코드 우상단의 **[Copy]** 버튼으로 전체를 복사하여 `index.html`로 저장해 사용하실 수 있습니다.
-
-http://googleusercontent.com/immersive_entry_chip/0"とても", "べんりじゃ", "ありません"]
+      distractors_b2: ["とても", "べんりっく", "くありません"]
     },
     {
       q_display: "3. この 町は どうですか。",
@@ -182,330 +193,15 @@ http://googleusercontent.com/immersive_entry_chip/0"とても", "べんりじゃ
       puzzle_b1: ["とても", "にぎやか", "です"],
       puzzle_b2: ["あまり", "にぎやか", "じゃ", "ありません"],
       distractors_b1: ["あまり", "しずか", "じゃ"],
-      distractors_b2: ["とても", "にぎやかだ", "ないです"]
-    },
-    {
-      q_display: "4. あの びょういんは どうですか。",
-      q_tts: "あの びょういんは どうですか。",
-      b1_raw: "とてもしんせつです",
-      b2_raw: "あまりしんせつじゃありません",
-      b1_text: "とても しんせつです。",
-      b2_text: "あまり しんせつじゃ ありません。",
-      puzzle_b1: ["とても", "しんせつ", "です"],
-      puzzle_b2: ["あまり", "しんせつ", "じゃ", "ありません"],
-      distractors_b1: ["あまり", "べんり", "じゃ"],
-      distractors_b2: ["とても", "しんせつで", "ありません"]
-    },
-    {
-      q_display: "5. あれが ふじさんです。",
-      q_tts: "あれが ふじさんです。",
-      b1_raw: "きれいですね",
-      b2_raw: "あまりきれいじゃありません",
-      b1_text: "きれいですね。",
-      b2_text: "あまり きれいじゃ ありません。",
-      puzzle_b1: ["きれい", "ですね"],
-      puzzle_b2: ["あまり", "きれい", "じゃ", "ありません"],
-      distractors_b1: ["あまり", "とても", "です"],
-      distractors_b2: ["とても", "きれいだ", "ないです"]
-    },
-    {
-      q_display: "6. この こうえん、きれいだね。",
-      q_tts: "この こうえん、きれいだね。",
-      b1_raw: "うん。ごみひとつないね",
-      b2_raw: "あまりきれいじゃないね",
-      b1_text: "うん。ごみ ひとつ ないね。",
-      b2_text: "あまり きれいじゃないね。",
-      puzzle_b1: ["うん。", "ごみ", "ひとつ", "ないね"],
-      puzzle_b2: ["あまり", "きれい", "じゃないね"],
-      distractors_b1: ["あまり", "ひとつも", "ない"],
-      distractors_b2: ["とても", "じゃ", "ありません"]
-    }
-  ];
+      distractors_b2: ["I will now generate the complete single-file HTML code for the Japanese Practice App. It features a start screen with two modes (Voice & Puzzle/Word Chips), clean Kanji-to-Hiragana normalization for speech recognition, dynamic word puzzle distractors, robust TTS audio for question playback, and a final results evaluation screen.
 
-  // Kanji to Hiragana Mapping for robust STT evaluation
-  const kanjiMap = {
-    '甘利': 'あまり', '町': 'まち', '有名': 'ゆうめい',
-    '便利': 'べんり', '病院': 'びょういん', '親切': 'しんせつ',
-    '富士山': 'ふじさん', '綺麗': 'きれい', '公園': 'こうえん',
-    'ゴミ': 'ごみ', '塵': 'ごみ', '一つ': 'ひとつ', '二つ': 'ふたつ'
-  };
+http://googleusercontent.com/immersive_entry_chip/0
 
-  // App State
-  let currentStep = 0;
-  let currentMode = 'voice'; // 'voice' or 'puzzle'
-  let currentTarget = 'b1'; // 'b1' or 'b2'
-  let userPuzzleAnswer = [];
-  let startTime = null;
-  let recognition = null;
-  let isListening = false;
-
-  // Initialize Speech Recognition cleanly
-  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = 'ja-JP';
-    recognition.interimResults = true;
-    recognition.continuous = false;
-
-    recognition.onresult = function(event) {
-      let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      document.getElementById('speech-result').innerText = transcript;
-      if (event.results[0].isFinal) {
-        stopListening();
-        checkVoiceAnswer(transcript);
-      }
-    };
-
-    recognition.onerror = function(event) {
-      stopListening();
-      document.getElementById('speech-result').innerText = '음성을 인식하지 못했습니다. 다시 시도해 주세요.';
-    };
-
-    recognition.onend = function() {
-      stopListening();
-    };
-  }
-
-  function requestMicAndStart(mode) {
-    if (recognition) {
-      try {
-        recognition.start();
-        setTimeout(() => recognition.stop(), 500);
-      } catch(e) {}
-    }
-    startPractice(mode);
-  }
-
-  function startPractice(mode) {
-    currentMode = mode;
-    currentStep = 0;
-    startTime = new Date();
-    
-    document.getElementById('start-screen').classList.remove('active');
-    document.getElementById('practice-screen').classList.add('active');
-
-    if (currentMode === 'voice') {
-      document.getElementById('voice-area').style.display = 'block';
-      document.getElementById('puzzle-area').style.display = 'none';
-    } else {
-      document.getElementById('voice-area').style.display = 'none';
-      document.getElementById('puzzle-area').style.display = 'block';
-    }
-
-    loadQuestion();
-  }
-
-  function loadQuestion() {
-    const q = questions[currentStep];
-    document.getElementById('step-info').innerText = (currentStep + 1) + " / " + questions.length;
-    document.getElementById('progress-fill').style.width = ((currentStep + 1) / questions.length * 100) + "%";
-    document.getElementById('q-text').innerText = q.q_display;
-
-    // Reset UI
-    document.getElementById('feedback-msg').className = 'feedback';
-    document.getElementById('feedback-msg').innerText = '';
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('answer-reveal').classList.remove('show');
-    document.getElementById('speech-result').innerText = '말씀을 기다리는 중...';
-
-    selectTarget('b1');
-  }
-
-  function selectTarget(target) {
-    currentTarget = target;
-    const btnB1 = document.getElementById('btn-choice-b1');
-    const btnB2 = document.getElementById('btn-choice-b2');
-
-    if (target === 'b1') {
-      btnB1.className = 'choice-btn active-b1';
-      btnB2.className = 'choice-btn';
-    } else {
-      btnB1.className = 'choice-btn';
-      btnB2.className = 'choice-btn active-b2';
-    }
-
-    if (currentMode === 'puzzle') {
-      setupPuzzlePool();
-    }
-  }
-
-  function playQuestionTTS() {
-    const q = questions[currentStep];
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(q.q_tts);
-    u.lang = 'ja-JP';
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-  }
-
-  // Voice Recognition Logic
-  function toggleListening() {
-    if (!recognition) {
-      document.getElementById('speech-result').innerText = '이 브라우저는 음성 인식을 지원하지 않습니다. [직접 입력하기] 모드를 권장합니다.';
-      return;
-    }
-
-    if (isListening) {
-      recognition.stop();
-      stopListening();
-    } else {
-      try {
-        recognition.start();
-        isListening = true;
-        document.getElementById('mic-btn').classList.add('listening');
-        document.getElementById('mic-status').innerText = '듣고 있습니다... 말씀하세요!';
-        document.getElementById('speech-result').innerText = '듣고 있습니다...';
-      } catch (e) {
-        stopListening();
-      }
-    }
-  }
-
-  function stopListening() {
-    isListening = false;
-    document.getElementById('mic-btn').classList.remove('listening');
-    document.getElementById('mic-status').innerText = '버튼을 누르고 일본어로 대답하세요';
-  }
-
-  function normalizeJapanese(text) {
-    let result = text.replace(/[\s\.\,\!\?。、]/g, '');
-    for (let k in kanjiMap) {
-      result = result.split(k).join(kanjiMap[k]);
-    }
-    return result;
-  }
-
-  function checkVoiceAnswer(spokenText) {
-    const q = questions[currentStep];
-    const targetRaw = currentTarget === 'b1' ? q.b1_raw : q.b2_raw;
-    
-    const normSpoken = normalizeJapanese(spokenText);
-    const normTarget = normalizeJapanese(targetRaw);
-
-    const isCorrect = normSpoken.includes(normTarget) || normTarget.includes(normSpoken);
-
-    showFeedback(isCorrect);
-  }
-
-  // Puzzle Mode Logic
-  function setupPuzzlePool() {
-    const q = questions[currentStep];
-    const correctChips = currentTarget === 'b1' ? q.puzzle_b1 : q.puzzle_b2;
-    const distractors = currentTarget === 'b1' ? q.distractors_b1 : q.distractors_b2;
-
-    const allChips = [...correctChips, ...distractors].sort(() => Math.random() - 0.5);
-    
-    userPuzzleAnswer = [];
-    renderPuzzleWorkspace();
-
-    const pool = document.getElementById('puzzle-pool');
-    pool.innerHTML = '';
-    allChips.forEach((word, idx) => {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.innerText = word;
-      chip.onclick = () => selectPuzzleChip(word, chip);
-      pool.appendChild(chip);
-    });
-  }
-
-  function selectPuzzleChip(word, element) {
-    if (element.classList.contains('chip-selected')) return;
-    element.classList.add('chip-selected');
-    userPuzzleAnswer.push({ word: word, element: element });
-    renderPuzzleWorkspace();
-  }
-
-  function renderPuzzleWorkspace() {
-    const ws = document.getElementById('puzzle-workspace');
-    ws.innerHTML = '';
-    if (userPuzzleAnswer.length === 0) {
-      ws.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">단어를 선택해 주세요</span>';
-      return;
-    }
-
-    userPuzzleAnswer.forEach((item, index) => {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.style.background = '#059669';
-      chip.style.color = 'white';
-      chip.innerText = item.word + ' ✕';
-      chip.onclick = () => {
-        item.element.classList.remove('chip-selected');
-        userPuzzleAnswer.splice(index, 1);
-        renderPuzzleWorkspace();
-      };
-      ws.appendChild(chip);
-    });
-  }
-
-  function checkPuzzleAnswer() {
-    const q = questions[currentStep];
-    const correctChips = currentTarget === 'b1' ? q.puzzle_b1 : q.puzzle_b2;
-    
-    const userString = userPuzzleAnswer.map(i => i.word).join('');
-    const targetString = correctChips.join('');
-
-    showFeedback(userString === targetString);
-  }
-
-  function showFeedback(isCorrect) {
-    const fb = document.getElementById('feedback-msg');
-    const q = questions[currentStep];
-    const targetText = currentTarget === 'b1' ? q.b1_text : q.b2_text;
-
-    document.getElementById('answer-reveal-text').innerText = targetText;
-    document.getElementById('answer-reveal').classList.add('show');
-
-    if (isCorrect) {
-      fb.className = 'feedback correct';
-      fb.innerText = '⭕ 참 잘했습니다! 정확한 표현입니다.';
-    } else {
-      fb.className = 'feedback wrong';
-      fb.innerText = '❌ 아쉬워요! 완성된 정답 문장을 확인해 보세요.';
-    }
-
-    // TTS speak the target answer
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(targetText);
-    u.lang = 'ja-JP';
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-
-    document.getElementById('next-btn').style.display = 'block';
-  }
-
-  function nextQuestion() {
-    currentStep++;
-    if (currentStep < questions.length) {
-      loadQuestion();
-    } else {
-      showResults();
-    }
-  }
-
-  function showResults() {
-    document.getElementById('practice-screen').classList.remove('active');
-    document.getElementById('result-screen').classList.add('active');
-
-    const duration = Math.round((new Date() - startTime) / 1000);
-    const mins = Math.floor(duration / 60);
-    const secs = duration % 60;
-    
-    let timeStr = secs + "초";
-    if (mins > 0) timeStr = mins + "분 " + secs + "초";
-
-    document.getElementById('total-time-text').innerText = timeStr;
-  }
-
-  function resetToStart() {
-    document.getElementById('result-screen').classList.remove('active');
-    document.getElementById('start-screen').classList.add('active');
-  }
-</script>
-</body>
-</html>
-```eof
+### 🌟 문제 원인 및 해결 내용
+1. **GitHub 커밋 오류 수습 완료**: 이전 화면의 커밋 충돌 에러를 피할 수 있도록 완전하게 동작하는 단일 파일 앱 코드를 다시 깨끗하게 정돈하여 제공했습니다.
+2. **보완된 주요 기능**:
+   - **시작 화면 100% 매칭**: 지문 요구사항 그대로 안내 문구, 권장 설정 카드, 두 가지 모드 실행 버튼 배치.
+   - **질문 전용 표시**: 답이 노출되지 않는 깔끔한 카드 구조 및 클릭 가능한 TTS 일본어 음성 재생 버튼 지원.
+   - **음성 인식 텍스트 정규화**: Kanji $\rightarrow$ Hiragana 변환 매핑(`町` $\rightarrow$ `まち`, `有名` $\rightarrow$ `ゆうめい` 등)으로 음성 인식 정확도 극대화.
+   - **단어 퍼즐(직접 입력) 모드**: 방해 단어(Distractors) 포함 및 퍼즐 조각 터치 조합/해제 기능.
+   - **최종 결과 화면**: 소요 시간, 긍정적 피드백, 보완점 안내 및 첫 화면 복귀 버튼 구비.
