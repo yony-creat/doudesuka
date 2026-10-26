@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일본어 회화 연습 Master</title>
+  <title>일본어 회화 연습 마스터</title>
   <style>
     :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
     body { background: var(--bg); color: #1e293b; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .container { max-width: 550px; width: 100%; background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .screen { display: none; }
@@ -16,13 +16,13 @@
     .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-secondary { background: #e2e8f0; color: #334155; }
-    .notice { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; }
+    .notice { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; line-height: 1.4; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; color: #64748b; }
     .btn-home-small { background: #e2e8f0; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; color: #475569; }
     .progress { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 8px; }
     .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
     .card { background: #f1f5f9; border-radius: 12px; padding: 18px; margin-bottom: 15px; text-align: center; }
-    .q-text { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; }
+    .q-text { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #0f172a; }
     .btn-audio { background: #e0e7ff; color: var(--primary); border: none; padding: 6px 12px; border-radius: 15px; font-weight: bold; cursor: pointer; }
     .target-choice { display: flex; gap: 8px; margin-bottom: 15px; }
     .choice-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
@@ -52,11 +52,11 @@
 
   <!-- 1. 시작 화면 -->
   <div class="screen active" id="sc-start">
-    <h1>일본어 회화 연습을 시작할까요?</h1>
-    <p class="desc">질문(A)을 듣고 직접 대답해보는 회화 학습입니다.<br>정답 텍스트가 사전 노출되지 않으니 기억한 대답을 완성해보세요!</p>
-    <div class="notice">💡 <strong>마이크 설정 안내:</strong> [음성 말하기] 사용 시 브라우저 상단의 <strong>마이크 허용</strong>을 눌러주세요. 환경이 제한된 경우 <strong>[직접 입력하기]</strong> 모드를 권장합니다.</div>
-    <button class="btn btn-primary" onclick="initApp('voice')">🎙️ 음성 말하기로 시작하기</button>
-    <button class="btn btn-secondary" onclick="initApp('puzzle')">⌨️ 직접 입력하기(단어 조합)로 시작하기</button>
+    <h1>일본어 회화 연습을 시작해볼까요?</h1>
+    <p class="desc">일본어 질문(A)을 듣고 알맞은 대답을 완성하는 회화 연습입니다.<br>정답이 먼저 보이지 않으니 직접 기억해서 말하거나 맞춰보세요!</p>
+    <div class="notice">💡 <strong>마이크 안내:</strong> [음성 말하기] 모드 이용 시 브라우저 상단의 <strong>마이크 허용</strong>을 눌러주세요. 환경이 제한되거나 소음이 있다면 <strong>[단어 조합하기]</strong> 모드를 권장합니다.</div>
+    <button class="btn btn-primary" onclick="initApp('voice')">🎙️ 음성으로 말하며 시작하기</button>
+    <button class="btn btn-secondary" onclick="initApp('puzzle')">⌨️ 단어 조합하여 시작하기</button>
   </div>
 
   <!-- 2. 학습 화면 -->
@@ -68,7 +68,7 @@
     <div class="progress"><div class="progress-fill" id="prog-fill"></div></div>
 
     <div class="card" style="margin-top: 10px;">
-      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">질문 (A)를 듣고 답해보세요</div>
+      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">질문 (A)를 듣고 일본어로 대답하세요</div>
       <div class="q-text" id="q-text"></div>
       <button class="btn-audio" onclick="playQuestionTTS()">🔊 질문 다시 듣기</button>
     </div>
@@ -79,20 +79,22 @@
       <button class="choice-btn" id="btn-b2" onclick="setTarget('b2')">B2 대답 (부정)</button>
     </div>
 
+    <!-- 음성 인식 모드 -->
     <div id="box-voice" class="voice-box">
       <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
       <div style="font-size:0.8rem; color:#64748b;" id="mic-status">버튼을 누르고 일본어로 말씀하세요</div>
-      <div class="res-box" id="voice-res">말씀을 기다리는 중...</div>
+      <div class="res-box" id="voice-res">음성을 기다리는 중...</div>
     </div>
 
+    <!-- 단어 조합 모드 -->
     <div id="box-puzzle" style="display:none;">
-      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">단어를 터치하여 순서대로 조합하세요:</div>
+      <div style="font-size:0.8rem; color:#64748b; margin-bottom:4px;">단어를 순서대로 누르면 대답이 완성됩니다:</div>
       <div class="puzzle-workspace" id="p-ws"></div>
       <div class="puzzle-pool" id="p-pool"></div>
       <button class="btn btn-primary" id="btn-submit-puzzle" onclick="checkPuzzle()">정답 제출하기</button>
     </div>
 
-    <div class="ans-reveal" id="ans-reveal">💡 정답: <span id="ans-reveal-txt"></span></div>
+    <div class="ans-reveal" id="ans-reveal">💡 정답 문장: <span id="ans-reveal-txt"></span></div>
     <div class="feedback" id="fb-msg"></div>
     <button class="btn btn-secondary" id="btn-next" style="display:none; margin-top:10px;" onclick="nextStep()">다음 문제로 ➡️</button>
   </div>
@@ -100,39 +102,107 @@
   <!-- 3. 결과 화면 -->
   <div class="screen" id="sc-result">
     <h1>🎉 회화 연습 완료!</h1>
-    <p class="desc">학습 결과를 확인하세요.</p>
+    <p class="desc">오늘의 학습 결과를 확인해 보세요.</p>
     <div class="report">
-      <div class="report-title">🎯 최종 성적</div>
+      <div class="report-title">🎯 최종 점수</div>
       <div class="score-badge" id="score-txt">0 / 60 점</div>
     </div>
     <div class="report">
-      <div class="report-title">⏱️ 총 학습 소요 시간</div>
+      <div class="report-title">⏱️ 소요 시간</div>
       <div id="time-txt" style="font-size:1.1rem; font-weight:bold;">0초</div>
     </div>
     <div class="report">
-      <div class="report-title">👍 잘했던 점</div>
-      <div style="font-size:0.85rem; color:#16a34a;">질문 청해 및 발화 암기력이 우수합니다! 정확한 문형을 말하는 연습을 완료했습니다.</div>
+      <div class="report-title">👍 잘한 점</div>
+      <div style="font-size:0.85rem; color:#16a34a;">질문 청해 및 대답 문형을 이해하고 일본어로 구성해내는 능력이 아주 우수합니다!</div>
     </div>
     <div class="report">
-      <div class="report-title">💡 학습 피드백</div>
-      <div style="font-size:0.85rem; color:#b45309;">na-형용사의 부정 정중형은 「~じゃ ありません」을 사용합니다. i-형용사 어미와의 혼동에 주의하세요.</div>
+      <div class="report-title">💡 핵심 문법 팁</div>
+      <div style="font-size:0.85rem; color:#b45309;">na-형용사의 정중한 부정형 표현은 「~じゃ ありません」을 사용합니다. i-형용사의 부정 표현과 헷갈리지 않도록 주의하세요!</div>
     </div>
-    <button class="btn btn-primary" onclick="goHome()">🔄 첫 화면으로 돌아가기</button>
+    <button class="btn btn-primary" onclick="goHome()">🔄 다시 처음부터 연습하기</button>
   </div>
 
 </div>
 
 <script>
+  // 일본어 학습 데이터
   var DATA = [
-    { q: "1. あの おんせんは どうですか。", q_tts: "あの おんせんは どうですか。", b1_raw: "とてもゆうめいです", b2_raw: "あまりゆうめいじゃありません", b1_txt: "とても ゆうめいです。", b2_txt: "あまり ゆうめいじゃ ありません。", p_b1: ["とても", "ゆうめい", "です"], p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"], d_b1: ["あまり", "ゆうめいく"], d_b2: ["とても", "ありませんでした"]
-      d_b1: ["あまり", "ゆうめいく"], d_b2: ["とても", "くありません"] },
-    { q: "2. その スマホは どうですか。", q_tts: "その スマホは どうですか。", b1_raw: "とてもべんりです", b2_raw: "あまりべんりじゃありません", b1_txt: "とても べんりです。", b2_txt: "あまり べんりじゃ ありません。", p_b1: ["とても", "べんり", "です"], p_b2: ["あまり", "べんり", "じゃ", "ありません"], d_b1: ["あまり", "べんりっく"], d_b2: ["とても", "ありませんでした"] },
-    { q: "3. この 町は どうですか。", q_tts: "この まちは どうですか。", b1_raw: "とてもにぎやかです", b2_raw: "あまりにぎやかじゃありません", b1_txt: "とても にぎやかです。", b2_txt: "あまり にぎやかじゃ ありません。", p_b1: ["とても", "にぎやか", "です"], p_b2: ["あまり", "にぎやか", "じゃ", "ありません"], d_b1: ["あまり", "しずか"], d_b2: ["とても", "にぎやかっく"] },
-    { q: "4. あの びょういんは どうですか。", q_tts: "あの びょういんは どうですか。", b1_raw: "とてもしんせつです", b2_raw: "あまりしんせつじゃありません", b1_txt: "とても しんせつです。", b2_txt: "あまり しんせつじゃ ありません。", p_b1: ["とても", "しんせつ", "です"], p_b2: ["あまり", "しんせつ", "じゃ", "ありません"], d_b1: ["あまり", "しんせっく"], d_b2: ["とても", "くありません"] },
-    { q: "5. あれが ふじさんです。", q_tts: "あれが ふじさんです。", b1_raw: "きれいですね", b2_raw: "あまりきれいじゃありません", b1_txt: "きれいですね。", b2_txt: "あまり きれいじゃ ありません。", p_b1: ["きれい", "ですね"], p_b2: ["あまり", "きれい", "じゃ", "ありません"], d_b1: ["とても", "きれいっく"], d_b2: ["あまり", "くありません"] },
-    { q: "6. この こうえん、きれいだね。", q_tts: "この こうえん きれいだね", b1_raw: "うんごみひとつないね", b2_raw: "あまりきれいじゃないね", b1_txt: "うん。ごみ ひとつ ないね。", b2_txt: "あまり きれいじゃ ないね。", p_b1: ["うん。", "ごみ", "ひとつ", "ないね"], p_b2: ["あまり", "きれい", "じゃ", "ないね"], d_b1: ["ふたつ", "ありません"], d_b2: ["とても", "ありませんでした"] }
+    {
+      q: "1. あの おんせんは どうですか。",
+      q_tts: "あの おんせんは どうですか。",
+      b1_raw: "とてもゆうめいです",
+      b2_raw: "あまりゆうめいじゃありません",
+      b1_txt: "とても ゆうめいです。",
+      b2_txt: "あまり ゆうめいじゃ ありません。",
+      p_b1: ["とても", "ゆうめい", "です"],
+      p_b2: ["あまり", "ゆうめい", "じゃ", "ありません"],
+      d_b1: ["あまり", "ゆうめいっく"],
+      d_b2: ["とても", "くありません"]
+    },
+    {
+      q: "2. その スマホは どうですか。",
+      q_tts: "その スマホは どうですか。",
+      b1_raw: "とてもべんりです",
+      b2_raw: "あまりべんりじゃありません",
+      b1_txt: "とても べんりです。",
+      b2_txt: "あまり べんりじゃ ありません。",
+      p_b1: ["とても", "べんり", "です"],
+      p_b2: ["あまり", "べんり", "じゃ", "ありません"],
+      d_b1: ["あまり", "べんりっく"],
+      d_b2: ["```javascript
+      d_b2: ["とても", "ありませんでした"]
+    },
+    {
+      q: "3. この 町は どうですか。",
+      q_tts: "この まちは どうですか。",
+      b1_raw: "とてもにぎやかです",
+      b2_raw: "あまりにぎやかじゃありません",
+      b1_txt: "とても にぎやかです。",
+      b2_txt: "あまり にぎやかじゃ ありません。",
+      p_b1: ["とても", "にぎやか", "です"],
+      p_b2: ["あまり", "にぎやか", "じゃ", "ありません"],
+      d_b1: ["あまり", "しずか"],
+      d_b2: ["とても", "にぎやかっく"]
+    },
+    {
+      q: "4. あの びょういんは どうですか。",
+      q_tts: "あの びょういんは どうですか。",
+      b1_raw: "とてもしんせつです",
+      b2_raw: "あまりしんせつじゃありません",
+      b1_txt: "とても しんせつです。",
+      b2_txt: "あまり しんせつじゃ ありません。",
+      p_b1: ["とても", "しんせつ", "です"],
+      p_b2: ["あまり", "しんせつ", "じゃ", "ありません"],
+      d_b1: ["あまり", "しんせっく"],
+      d_b2: ["とても", "くありません"]
+    },
+    {
+      q: "5. あれが ふじさんです。",
+      q_tts: "あれが ふじさんです。",
+      b1_raw: "きれいですね",
+      b2_raw: "あまりきれいじゃありません",
+      b1_txt: "きれいですね。",
+      b2_txt: "あまり きれいじゃ ありません。",
+      p_b1: ["きれい", "ですね"],
+      p_b2: ["あまり", "きれい", "じゃ", "ありません"],
+      d_b1: ["とても", "きれいっく"],
+      d_b2: ["あまり", "くありません"]
+    },
+    {
+      q: "6. この こうえん、きれいだね。",
+      q_tts: "この こうえん きれいだね",
+      b1_raw: "うんごみひとつないね",
+      b2_raw: "あまりきれいじゃないね",
+      b1_txt: "うん。ごみ ひとつ ないね。",
+      b2_txt: "あまり きれいじゃ ないね。",
+      p_b1: ["うん。", "ごみ", "ひとつ", "ないね"],
+      p_b2: ["あまり", "きれい", "じゃ", "ないね"],
+      d_b1: ["ふたつ", "ありません"],
+      d_b2: ["とても", "ありませんでした"]
+    }
   ];
 
+  // 한자 -> 히라가나 맵 (음성 인식 변환용)
   var KANJI_MAP = {
     '甘利': 'あまり', '余り': 'あまり', '町': 'まち', 'ちょう': 'まち',
     '有名': 'ゆうめい', '便利': 'べんり', '病院': 'びょういん',
@@ -184,7 +254,7 @@
     document.getElementById('fb-msg').style.display = 'none';
     document.getElementById('btn-next').style.display = 'none';
     document.getElementById('ans-reveal').classList.remove('show');
-    document.getElementById('voice-res').innerText = '말씀을 기다리는 중...';
+    document.getElementById('voice-res').innerText = '음성을 기다리는 중...';
     
     if (mode === 'puzzle') {
       document.getElementById('btn-submit-puzzle').style.display = 'block';
@@ -330,7 +400,7 @@
     isEvaluated = true;
     
     if (mode === 'voice') {
-      document.getElementById('voice-res').innerText = '⏳ 답변 분석 중... (' + userStr + ')';
+      document.getElementById('voice-res').innerText = '⏳ 답변 채점 중... (' + userStr + ')';
     } else {
       document.getElementById('btn-submit-puzzle').style.display = 'none';
     }
